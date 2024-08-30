@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:16.4
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: fetchuser        # set up the default user
+      POSTGRES_PASSWORD: fetchpwd     # set up the default password
+      POSTGRES_DB: postgres           # set up the default database
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile          # explicitly provide the dockerfile
+    image: limeapi
+    env_file:
+      - .env
+    environment:
+      DB_CONNECTION_URL: postgresql://fetchuser:fetchpwd@db:5432/postgres   # overwrites the one from .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    restart: "no"
+
+volumes:
+  postgres_data:

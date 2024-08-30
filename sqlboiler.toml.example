@@ -1,0 +1,19 @@
+# Output directory for generated files
+output  = "internal/store/pg/models"
+pkgname  = "models"
+
+# Schema to generate models for (optional)
+schema  = "public"
+
+# Set this to true if you want to wipe the output directory before generation
+wipe = true
+
+[psql]
+  # The database connection details
+  dbname  = "postgres"
+  user    = "yourusername"
+  pass    = "yourpassword"
+  host    = "localhost"
+  port    = 5432
+  sslmode = "disable"
+  blacklist = ["schema_migrations"]
