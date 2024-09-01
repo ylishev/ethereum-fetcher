@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users
 (
     id       SERIAL PRIMARY KEY,
     username VARCHAR(20) UNIQUE NOT NULL,
-    password TEXT NOT NULL -- Stores the hashed, salted passwords
+    password TEXT NOT NULL -- stores the hashed, salted passwords
 );
 
 INSERT INTO users (username, password)
@@ -14,7 +14,7 @@ VALUES
     ('carol', crypt('carol', gen_salt('bf'))),
     ('dave', crypt('dave', gen_salt('bf')));
 
--- Composite index for fast lookups by username and password for auth case
+-- composite index for fast lookups by username and password for auth case
 CREATE INDEX IF NOT EXISTS idx_users_username_password ON users (username, password);
 
 CREATE TABLE IF NOT EXISTS transactions
@@ -28,10 +28,16 @@ CREATE TABLE IF NOT EXISTS transactions
     contract_address VARCHAR(42),
     logs_count       BIGINT      NOT NULL,
     input            TEXT        NOT NULL,
-    value            TEXT        NOT NULL,
-    user_id          INT,
-    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    value            TEXT        NOT NULL
 );
 
--- Index on user_id for fast lookups by user_id
-CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions (user_id);
+CREATE TABLE IF NOT EXISTS user_transactions
+(
+    user_id  INT NOT NULL,
+    tx_hash  VARCHAR(66) NOT NULL,
+    PRIMARY KEY (user_id, tx_hash),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (tx_hash) REFERENCES transactions (tx_hash) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_transactions_user_id ON user_transactions (user_id);

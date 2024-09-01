@@ -68,7 +68,7 @@ func (wab *AuthBearerMiddleware) Authenticate(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// add "sub" claim to the request context
+	// attach user ID to the request context
 	ctx = context.WithValue(r.Context(), userIDKey, int(sub))
 
 	// authorized to continue with request processing with attached userID

@@ -135,7 +135,6 @@ func (n *EthNode) GetTransactionByHash(hash string) (*models.Transaction, error)
 		LogsCount:       int64(len(receipt.Logs)),
 		Input:           fmt.Sprintf("0x%s", hex.EncodeToString(ethTX.Data())),
 		Value:           ethTX.Value().String(),
-		UserID:          null.Int{},
 	}
 
 	return tx, nil

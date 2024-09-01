@@ -7,9 +7,7 @@ import "testing"
 
 // TestToOne tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToOne(t *testing.T) {
-	t.Run("TransactionToUserUsingUser", testTransactionToOneUserUsingUser)
-}
+func TestToOne(t *testing.T) {}
 
 // TestOneToOne tests cannot be run in parallel
 // or deadlocks can occur.
@@ -18,20 +16,17 @@ func TestOneToOne(t *testing.T) {}
 // TestToMany tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToMany(t *testing.T) {
-	t.Run("UserToTransactions", testUserToManyTransactions)
+	t.Run("TransactionToUsers", testTransactionToManyUsers)
+	t.Run("UserToTXHashTransactions", testUserToManyTXHashTransactions)
 }
 
 // TestToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToOneSet(t *testing.T) {
-	t.Run("TransactionToUserUsingTransactions", testTransactionToOneSetOpUserUsingUser)
-}
+func TestToOneSet(t *testing.T) {}
 
 // TestToOneRemove tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToOneRemove(t *testing.T) {
-	t.Run("TransactionToUserUsingTransactions", testTransactionToOneRemoveOpUserUsingUser)
-}
+func TestToOneRemove(t *testing.T) {}
 
 // TestOneToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
@@ -44,17 +39,20 @@ func TestOneToOneRemove(t *testing.T) {}
 // TestToManyAdd tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManyAdd(t *testing.T) {
-	t.Run("UserToTransactions", testUserToManyAddOpTransactions)
+	t.Run("TransactionToUsers", testTransactionToManyAddOpUsers)
+	t.Run("UserToTXHashTransactions", testUserToManyAddOpTXHashTransactions)
 }
 
 // TestToManySet tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManySet(t *testing.T) {
-	t.Run("UserToTransactions", testUserToManySetOpTransactions)
+	t.Run("TransactionToUsers", testTransactionToManySetOpUsers)
+	t.Run("UserToTXHashTransactions", testUserToManySetOpTXHashTransactions)
 }
 
 // TestToManyRemove tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManyRemove(t *testing.T) {
-	t.Run("UserToTransactions", testUserToManyRemoveOpTransactions)
+	t.Run("TransactionToUsers", testTransactionToManyRemoveOpUsers)
+	t.Run("UserToTXHashTransactions", testUserToManyRemoveOpTXHashTransactions)
 }

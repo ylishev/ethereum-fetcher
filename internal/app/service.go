@@ -12,7 +12,7 @@ import (
 )
 
 type ServiceProvider interface {
-	GetTransactionsByHashes(txHashes []string) ([]*models.Transaction, error)
+	GetTransactionsByHashes(txHashes []string, userID int) ([]*models.Transaction, error)
 }
 
 type Service struct {
@@ -31,11 +31,11 @@ func NewService(ctx context.Context, vp *viper.Viper, st store.StoreProvider, ne
 	}
 }
 
-func (ap *Service) GetTransactionsByHashes(txHashes []string) ([]*models.Transaction, error) {
+func (ap *Service) GetTransactionsByHashes(txHashes []string, userID int) ([]*models.Transaction, error) {
 	fullList := make([]*models.Transaction, 0, len(txHashes))
 
-	// fetch all stored tx from the database
-	txList, err := ap.st.GetTransactionsByHashes(txHashes)
+	// fetch all stored tx from the database by those hashes
+	txList, err := ap.st.GetTransactionsByHashes(txHashes, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +51,14 @@ func (ap *Service) GetTransactionsByHashes(txHashes []string) ([]*models.Transac
 		// try first from the query result
 		if i, found := availableMap[hash]; found {
 			fullList = append(fullList, txList[i])
+
+			// now make sure user_transactions has the user added
+			// NOTE: ideally we should only emmit "transactionRead" event
+			// and another goroutine to listen and insert the user/txs, to separate read and write operations
+			err := ap.st.InsertTransactionsUser([]*models.Transaction{txList[i]}, userID)
+			if err != nil {
+				return nil, fmt.Errorf("error storing tx user info for hash '%s': %v", hash, err)
+			}
 			continue
 		}
 
@@ -60,7 +68,9 @@ func (ap *Service) GetTransactionsByHashes(txHashes []string) ([]*models.Transac
 			return nil, fmt.Errorf("error fetching tx info for hash '%s': %v", hash, err)
 		}
 
-		err = ap.st.InsertTransactions([]*models.Transaction{tx})
+		// NOTE: ideally we should only emmit "transactionRead" event
+		// and another goroutine to listen and insert the tx, to separate read and write operations
+		err = ap.st.InsertTransactions([]*models.Transaction{tx}, userID)
 		if err != nil {
 			return nil, fmt.Errorf("error storing tx info for hash '%s': %v", hash, err)
 		}

@@ -494,70 +494,8 @@ func testTransactionsInsertWhitelist(t *testing.T) {
 	}
 }
 
-func testTransactionToOneUserUsingUser(t *testing.T) {
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var local Transaction
-	var foreign User
-
-	seed := randomize.NewSeed()
-	if err := randomize.Struct(seed, &local, transactionDBTypes, true, transactionColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Transaction struct: %s", err)
-	}
-	if err := randomize.Struct(seed, &foreign, userDBTypes, false, userColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize User struct: %s", err)
-	}
-
-	if err := foreign.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	queries.Assign(&local.UserID, foreign.ID)
-	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	check, err := local.User().One(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if !queries.Equal(check.ID, foreign.ID) {
-		t.Errorf("want: %v, got %v", foreign.ID, check.ID)
-	}
-
-	ranAfterSelectHook := false
-	AddUserHook(boil.AfterSelectHook, func(ctx context.Context, e boil.ContextExecutor, o *User) error {
-		ranAfterSelectHook = true
-		return nil
-	})
-
-	slice := TransactionSlice{&local}
-	if err = local.L.LoadUser(ctx, tx, false, (*[]*Transaction)(&slice), nil); err != nil {
-		t.Fatal(err)
-	}
-	if local.R.User == nil {
-		t.Error("struct should have been eager loaded")
-	}
-
-	local.R.User = nil
-	if err = local.L.LoadUser(ctx, tx, true, &local, nil); err != nil {
-		t.Fatal(err)
-	}
-	if local.R.User == nil {
-		t.Error("struct should have been eager loaded")
-	}
-
-	if !ranAfterSelectHook {
-		t.Error("failed to run AfterSelect hook for relationship")
-	}
-}
-
-func testTransactionToOneSetOpUserUsingUser(t *testing.T) {
+func testTransactionToManyUsers(t *testing.T) {
 	var err error
-
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
@@ -566,14 +504,99 @@ func testTransactionToOneSetOpUserUsingUser(t *testing.T) {
 	var b, c User
 
 	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, transactionDBTypes, true, transactionColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Transaction struct: %s", err)
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	if err = randomize.Struct(seed, &b, userDBTypes, false, userColumnsWithDefault...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, userDBTypes, false, userColumnsWithDefault...); err != nil {
+		t.Fatal(err)
+	}
+
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = tx.Exec("insert into \"user_transactions\" (\"tx_hash\", \"user_id\") values ($1, $2)", a.TXHash, b.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = tx.Exec("insert into \"user_transactions\" (\"tx_hash\", \"user_id\") values ($1, $2)", a.TXHash, c.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := a.Users().All(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	bFound, cFound := false, false
+	for _, v := range check {
+		if v.ID == b.ID {
+			bFound = true
+		}
+		if v.ID == c.ID {
+			cFound = true
+		}
+	}
+
+	if !bFound {
+		t.Error("expected to find b")
+	}
+	if !cFound {
+		t.Error("expected to find c")
+	}
+
+	slice := TransactionSlice{&a}
+	if err = a.L.LoadUsers(ctx, tx, false, (*[]*Transaction)(&slice), nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.Users); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
+
+	a.R.Users = nil
+	if err = a.L.LoadUsers(ctx, tx, true, &a, nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.Users); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
+
+	if t.Failed() {
+		t.Logf("%#v", check)
+	}
+}
+
+func testTransactionToManyAddOpUsers(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a Transaction
+	var b, c, d, e User
+
+	seed := randomize.NewSeed()
 	if err = randomize.Struct(seed, &a, transactionDBTypes, false, strmangle.SetComplement(transactionPrimaryKeyColumns, transactionColumnsWithoutDefault)...); err != nil {
 		t.Fatal(err)
 	}
-	if err = randomize.Struct(seed, &b, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	if err = randomize.Struct(seed, &c, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
+	foreigners := []*User{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
@@ -582,38 +605,49 @@ func testTransactionToOneSetOpUserUsingUser(t *testing.T) {
 	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
 
-	for i, x := range []*User{&b, &c} {
-		err = a.SetUser(ctx, tx, i != 0, x)
+	foreignersSplitByInsertion := [][]*User{
+		{&b, &c},
+		{&d, &e},
+	}
+
+	for i, x := range foreignersSplitByInsertion {
+		err = a.AddUsers(ctx, tx, i != 0, x...)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if a.R.User != x {
-			t.Error("relationship struct not set to correct value")
+		first := x[0]
+		second := x[1]
+
+		if first.R.TXHashTransactions[0] != &a {
+			t.Error("relationship was not added properly to the slice")
+		}
+		if second.R.TXHashTransactions[0] != &a {
+			t.Error("relationship was not added properly to the slice")
 		}
 
-		if x.R.Transactions[0] != &a {
-			t.Error("failed to append to foreign relationship struct")
+		if a.R.Users[i*2] != first {
+			t.Error("relationship struct slice not set to correct value")
 		}
-		if !queries.Equal(a.UserID, x.ID) {
-			t.Error("foreign key was wrong value", a.UserID)
-		}
-
-		zero := reflect.Zero(reflect.TypeOf(a.UserID))
-		reflect.Indirect(reflect.ValueOf(&a.UserID)).Set(zero)
-
-		if err = a.Reload(ctx, tx); err != nil {
-			t.Fatal("failed to reload", err)
+		if a.R.Users[i*2+1] != second {
+			t.Error("relationship struct slice not set to correct value")
 		}
 
-		if !queries.Equal(a.UserID, x.ID) {
-			t.Error("foreign key was wrong value", a.UserID, x.ID)
+		count, err := a.Users().Count(ctx, tx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if want := int64((i + 1) * 2); count != want {
+			t.Error("want", want, "got", count)
 		}
 	}
 }
 
-func testTransactionToOneRemoveOpUserUsingUser(t *testing.T) {
+func testTransactionToManySetOpUsers(t *testing.T) {
 	var err error
 
 	ctx := context.Background()
@@ -621,46 +655,154 @@ func testTransactionToOneRemoveOpUserUsingUser(t *testing.T) {
 	defer func() { _ = tx.Rollback() }()
 
 	var a Transaction
-	var b User
+	var b, c, d, e User
 
 	seed := randomize.NewSeed()
 	if err = randomize.Struct(seed, &a, transactionDBTypes, false, strmangle.SetComplement(transactionPrimaryKeyColumns, transactionColumnsWithoutDefault)...); err != nil {
 		t.Fatal(err)
 	}
-	if err = randomize.Struct(seed, &b, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
+	foreigners := []*User{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
-
-	if err = a.SetUser(ctx, tx, true, &b); err != nil {
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
 
-	if err = a.RemoveUser(ctx, tx, &b); err != nil {
-		t.Error("failed to remove relationship")
-	}
-
-	count, err := a.User().Count(ctx, tx)
+	err = a.SetUsers(ctx, tx, false, &b, &c)
 	if err != nil {
-		t.Error(err)
-	}
-	if count != 0 {
-		t.Error("want no relationships remaining")
+		t.Fatal(err)
 	}
 
-	if a.R.User != nil {
-		t.Error("R struct entry should be nil")
+	count, err := a.Users().Count(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 2 {
+		t.Error("count was wrong:", count)
 	}
 
-	if !queries.IsValuerNil(a.UserID) {
-		t.Error("foreign key value should be nil")
+	err = a.SetUsers(ctx, tx, true, &d, &e)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	if len(b.R.Transactions) != 0 {
-		t.Error("failed to remove a from b's relationships")
+	count, err = a.Users().Count(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 2 {
+		t.Error("count was wrong:", count)
+	}
+
+	// The following checks cannot be implemented since we have no handle
+	// to these when we call Set(). Leaving them here as wishful thinking
+	// and to let people know there's dragons.
+	//
+	// if len(b.R.TXHashTransactions) != 0 {
+	// 	t.Error("relationship was not removed properly from the slice")
+	// }
+	// if len(c.R.TXHashTransactions) != 0 {
+	// 	t.Error("relationship was not removed properly from the slice")
+	// }
+	if d.R.TXHashTransactions[0] != &a {
+		t.Error("relationship was not added properly to the slice")
+	}
+	if e.R.TXHashTransactions[0] != &a {
+		t.Error("relationship was not added properly to the slice")
+	}
+
+	if a.R.Users[0] != &d {
+		t.Error("relationship struct slice not set to correct value")
+	}
+	if a.R.Users[1] != &e {
+		t.Error("relationship struct slice not set to correct value")
+	}
+}
+
+func testTransactionToManyRemoveOpUsers(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a Transaction
+	var b, c, d, e User
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, transactionDBTypes, false, strmangle.SetComplement(transactionPrimaryKeyColumns, transactionColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	foreigners := []*User{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	err = a.AddUsers(ctx, tx, true, foreigners...)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count, err := a.Users().Count(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 4 {
+		t.Error("count was wrong:", count)
+	}
+
+	err = a.RemoveUsers(ctx, tx, foreigners[:2]...)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count, err = a.Users().Count(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 2 {
+		t.Error("count was wrong:", count)
+	}
+
+	if len(b.R.TXHashTransactions) != 0 {
+		t.Error("relationship was not removed properly from the slice")
+	}
+	if len(c.R.TXHashTransactions) != 0 {
+		t.Error("relationship was not removed properly from the slice")
+	}
+	if d.R.TXHashTransactions[0] != &a {
+		t.Error("relationship was not added properly to the foreign struct")
+	}
+	if e.R.TXHashTransactions[0] != &a {
+		t.Error("relationship was not added properly to the foreign struct")
+	}
+
+	if len(a.R.Users) != 2 {
+		t.Error("should have preserved two relationships")
+	}
+
+	// Removal doesn't do a stable deletion for performance so we have to flip the order
+	if a.R.Users[1] != &d {
+		t.Error("relationship to d should have been preserved")
+	}
+	if a.R.Users[0] != &e {
+		t.Error("relationship to e should have been preserved")
 	}
 }
 
@@ -738,7 +880,7 @@ func testTransactionsSelect(t *testing.T) {
 }
 
 var (
-	transactionDBTypes = map[string]string{`TXHash`: `character varying`, `TXStatus`: `integer`, `BlockHash`: `character varying`, `BlockNumber`: `numeric`, `FromAddress`: `character varying`, `ToAddress`: `character varying`, `ContractAddress`: `character varying`, `LogsCount`: `bigint`, `Input`: `text`, `Value`: `text`, `UserID`: `integer`}
+	transactionDBTypes = map[string]string{`TXHash`: `character varying`, `TXStatus`: `integer`, `BlockHash`: `character varying`, `BlockNumber`: `numeric`, `FromAddress`: `character varying`, `ToAddress`: `character varying`, `ContractAddress`: `character varying`, `LogsCount`: `bigint`, `Input`: `text`, `Value`: `text`}
 	_                  = bytes.MinRead
 )
 

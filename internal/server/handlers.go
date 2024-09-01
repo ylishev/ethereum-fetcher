@@ -67,7 +67,10 @@ func (ep *EndPoint) GetTransactionsByHashes(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	txList, err := ep.ap.GetTransactionsByHashes(txHashes)
+	// extract the user ID - zero value for "no user"
+	userID, _ := r.Context().Value(userIDKey).(int)
+
+	txList, err := ep.ap.GetTransactionsByHashes(txHashes, userID)
 	if err != nil {
 		log.Errorf("cannot retrieve transactions by hashes: %v", err)
 		writeInternalServerError(w)
@@ -232,7 +235,7 @@ func (ep *EndPoint) Authenticate(w http.ResponseWriter, r *http.Request) {
 
 func createToken(jwtSecret string, userID int) (string, error) {
 	iat := time.Now()
-	exp := iat.Add(time.Hour)
+	exp := iat.Add(4 * time.Hour)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"iss": "https://limechain.tech/auth",

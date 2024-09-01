@@ -35,7 +35,6 @@ type Transaction struct {
 	LogsCount       int64         `boil:"logs_count" json:"logs_count" toml:"logs_count" yaml:"logs_count"`
 	Input           string        `boil:"input" json:"input" toml:"input" yaml:"input"`
 	Value           string        `boil:"value" json:"value" toml:"value" yaml:"value"`
-	UserID          null.Int      `boil:"user_id" json:"user_id,omitempty" toml:"user_id" yaml:"user_id,omitempty"`
 
 	R *transactionR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L transactionL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -52,7 +51,6 @@ var TransactionColumns = struct {
 	LogsCount       string
 	Input           string
 	Value           string
-	UserID          string
 }{
 	TXHash:          "tx_hash",
 	TXStatus:        "tx_status",
@@ -64,7 +62,6 @@ var TransactionColumns = struct {
 	LogsCount:       "logs_count",
 	Input:           "input",
 	Value:           "value",
-	UserID:          "user_id",
 }
 
 var TransactionTableColumns = struct {
@@ -78,7 +75,6 @@ var TransactionTableColumns = struct {
 	LogsCount       string
 	Input           string
 	Value           string
-	UserID          string
 }{
 	TXHash:          "transactions.tx_hash",
 	TXStatus:        "transactions.tx_status",
@@ -90,7 +86,6 @@ var TransactionTableColumns = struct {
 	LogsCount:       "transactions.logs_count",
 	Input:           "transactions.input",
 	Value:           "transactions.value",
-	UserID:          "transactions.user_id",
 }
 
 // Generated where
@@ -239,44 +234,6 @@ func (w whereHelperint64) NIN(slice []int64) qm.QueryMod {
 	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
 }
 
-type whereHelpernull_Int struct{ field string }
-
-func (w whereHelpernull_Int) EQ(x null.Int) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_Int) NEQ(x null.Int) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_Int) LT(x null.Int) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_Int) LTE(x null.Int) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_Int) GT(x null.Int) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_Int) GTE(x null.Int) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-func (w whereHelpernull_Int) IN(slice []int) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelpernull_Int) NIN(slice []int) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
-func (w whereHelpernull_Int) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_Int) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-
 var TransactionWhere = struct {
 	TXHash          whereHelperstring
 	TXStatus        whereHelperint
@@ -288,7 +245,6 @@ var TransactionWhere = struct {
 	LogsCount       whereHelperint64
 	Input           whereHelperstring
 	Value           whereHelperstring
-	UserID          whereHelpernull_Int
 }{
 	TXHash:          whereHelperstring{field: "\"transactions\".\"tx_hash\""},
 	TXStatus:        whereHelperint{field: "\"transactions\".\"tx_status\""},
@@ -300,19 +256,18 @@ var TransactionWhere = struct {
 	LogsCount:       whereHelperint64{field: "\"transactions\".\"logs_count\""},
 	Input:           whereHelperstring{field: "\"transactions\".\"input\""},
 	Value:           whereHelperstring{field: "\"transactions\".\"value\""},
-	UserID:          whereHelpernull_Int{field: "\"transactions\".\"user_id\""},
 }
 
 // TransactionRels is where relationship names are stored.
 var TransactionRels = struct {
-	User string
+	Users string
 }{
-	User: "User",
+	Users: "Users",
 }
 
 // transactionR is where relationships are stored.
 type transactionR struct {
-	User *User `boil:"User" json:"User" toml:"User" yaml:"User"`
+	Users UserSlice `boil:"Users" json:"Users" toml:"Users" yaml:"Users"`
 }
 
 // NewStruct creates a new relationship struct
@@ -320,20 +275,20 @@ func (*transactionR) NewStruct() *transactionR {
 	return &transactionR{}
 }
 
-func (r *transactionR) GetUser() *User {
+func (r *transactionR) GetUsers() UserSlice {
 	if r == nil {
 		return nil
 	}
-	return r.User
+	return r.Users
 }
 
 // transactionL is where Load methods for each relationship are stored.
 type transactionL struct{}
 
 var (
-	transactionAllColumns            = []string{"tx_hash", "tx_status", "block_hash", "block_number", "from_address", "to_address", "contract_address", "logs_count", "input", "value", "user_id"}
+	transactionAllColumns            = []string{"tx_hash", "tx_status", "block_hash", "block_number", "from_address", "to_address", "contract_address", "logs_count", "input", "value"}
 	transactionColumnsWithoutDefault = []string{"tx_hash", "tx_status", "block_hash", "block_number", "from_address", "logs_count", "input", "value"}
-	transactionColumnsWithDefault    = []string{"to_address", "contract_address", "user_id"}
+	transactionColumnsWithDefault    = []string{"to_address", "contract_address"}
 	transactionPrimaryKeyColumns     = []string{"tx_hash"}
 	transactionGeneratedColumns      = []string{}
 )
@@ -643,20 +598,24 @@ func (q transactionQuery) Exists(ctx context.Context, exec boil.ContextExecutor)
 	return count > 0, nil
 }
 
-// User pointed to by the foreign key.
-func (o *Transaction) User(mods ...qm.QueryMod) userQuery {
-	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.UserID),
+// Users retrieves all the user's Users with an executor.
+func (o *Transaction) Users(mods ...qm.QueryMod) userQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
 	}
 
-	queryMods = append(queryMods, mods...)
+	queryMods = append(queryMods,
+		qm.InnerJoin("\"user_transactions\" on \"users\".\"id\" = \"user_transactions\".\"user_id\""),
+		qm.Where("\"user_transactions\".\"tx_hash\"=?", o.TXHash),
+	)
 
 	return Users(queryMods...)
 }
 
-// LoadUser allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for an N-1 relationship.
-func (transactionL) LoadUser(ctx context.Context, e boil.ContextExecutor, singular bool, maybeTransaction interface{}, mods queries.Applicator) error {
+// LoadUsers allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (transactionL) LoadUsers(ctx context.Context, e boil.ContextExecutor, singular bool, maybeTransaction interface{}, mods queries.Applicator) error {
 	var slice []*Transaction
 	var object *Transaction
 
@@ -687,20 +646,13 @@ func (transactionL) LoadUser(ctx context.Context, e boil.ContextExecutor, singul
 		if object.R == nil {
 			object.R = &transactionR{}
 		}
-		if !queries.IsNil(object.UserID) {
-			args[object.UserID] = struct{}{}
-		}
-
+		args[object.TXHash] = struct{}{}
 	} else {
 		for _, obj := range slice {
 			if obj.R == nil {
 				obj.R = &transactionR{}
 			}
-
-			if !queries.IsNil(obj.UserID) {
-				args[obj.UserID] = struct{}{}
-			}
-
+			args[obj.TXHash] = struct{}{}
 		}
 	}
 
@@ -716,8 +668,10 @@ func (transactionL) LoadUser(ctx context.Context, e boil.ContextExecutor, singul
 	}
 
 	query := NewQuery(
-		qm.From(`users`),
-		qm.WhereIn(`users.id in ?`, argsSlice...),
+		qm.Select("\"users\".\"id\", \"users\".\"username\", \"users\".\"password\", \"a\".\"tx_hash\""),
+		qm.From("\"users\""),
+		qm.InnerJoin("\"user_transactions\" as \"a\" on \"users\".\"id\" = \"a\".\"user_id\""),
+		qm.WhereIn("\"a\".\"tx_hash\" in ?", argsSlice...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -725,16 +679,30 @@ func (transactionL) LoadUser(ctx context.Context, e boil.ContextExecutor, singul
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load User")
+		return errors.Wrap(err, "failed to eager load users")
 	}
 
 	var resultSlice []*User
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice User")
+
+	var localJoinCols []string
+	for results.Next() {
+		one := new(User)
+		var localJoinCol string
+
+		err = results.Scan(&one.ID, &one.Username, &one.Password, &localJoinCol)
+		if err != nil {
+			return errors.Wrap(err, "failed to scan eager loaded results for users")
+		}
+		if err = results.Err(); err != nil {
+			return errors.Wrap(err, "failed to plebian-bind eager loaded slice users")
+		}
+
+		resultSlice = append(resultSlice, one)
+		localJoinCols = append(localJoinCols, localJoinCol)
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for users")
+		return errors.Wrap(err, "failed to close results in eager load on users")
 	}
 	if err = results.Err(); err != nil {
 		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for users")
@@ -747,29 +715,26 @@ func (transactionL) LoadUser(ctx context.Context, e boil.ContextExecutor, singul
 			}
 		}
 	}
-
-	if len(resultSlice) == 0 {
-		return nil
-	}
-
 	if singular {
-		foreign := resultSlice[0]
-		object.R.User = foreign
-		if foreign.R == nil {
-			foreign.R = &userR{}
+		object.R.Users = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &userR{}
+			}
+			foreign.R.TXHashTransactions = append(foreign.R.TXHashTransactions, object)
 		}
-		foreign.R.Transactions = append(foreign.R.Transactions, object)
 		return nil
 	}
 
-	for _, local := range slice {
-		for _, foreign := range resultSlice {
-			if queries.Equal(local.UserID, foreign.ID) {
-				local.R.User = foreign
+	for i, foreign := range resultSlice {
+		localJoinCol := localJoinCols[i]
+		for _, local := range slice {
+			if local.TXHash == localJoinCol {
+				local.R.Users = append(local.R.Users, foreign)
 				if foreign.R == nil {
 					foreign.R = &userR{}
 				}
-				foreign.R.Transactions = append(foreign.R.Transactions, local)
+				foreign.R.TXHashTransactions = append(foreign.R.TXHashTransactions, local)
 				break
 			}
 		}
@@ -778,84 +743,149 @@ func (transactionL) LoadUser(ctx context.Context, e boil.ContextExecutor, singul
 	return nil
 }
 
-// SetUser of the transaction to the related item.
-// Sets o.R.User to related.
-// Adds o to related.R.Transactions.
-func (o *Transaction) SetUser(ctx context.Context, exec boil.ContextExecutor, insert bool, related *User) error {
+// AddUsers adds the given related objects to the existing relationships
+// of the transaction, optionally inserting them as new records.
+// Appends related to o.R.Users.
+// Sets related.R.TXHashTransactions appropriately.
+func (o *Transaction) AddUsers(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*User) error {
 	var err error
-	if insert {
-		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
-			return errors.Wrap(err, "failed to insert into foreign table")
+	for _, rel := range related {
+		if insert {
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
 		}
 	}
 
-	updateQuery := fmt.Sprintf(
-		"UPDATE \"transactions\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
-		strmangle.WhereClause("\"", "\"", 2, transactionPrimaryKeyColumns),
+	for _, rel := range related {
+		query := "insert into \"user_transactions\" (\"tx_hash\", \"user_id\") values ($1, $2)"
+		values := []interface{}{o.TXHash, rel.ID}
+
+		if boil.IsDebug(ctx) {
+			writer := boil.DebugWriterFrom(ctx)
+			fmt.Fprintln(writer, query)
+			fmt.Fprintln(writer, values)
+		}
+		_, err = exec.ExecContext(ctx, query, values...)
+		if err != nil {
+			return errors.Wrap(err, "failed to insert into join table")
+		}
+	}
+	if o.R == nil {
+		o.R = &transactionR{
+			Users: related,
+		}
+	} else {
+		o.R.Users = append(o.R.Users, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &userR{
+				TXHashTransactions: TransactionSlice{o},
+			}
+		} else {
+			rel.R.TXHashTransactions = append(rel.R.TXHashTransactions, o)
+		}
+	}
+	return nil
+}
+
+// SetUsers removes all previously related items of the
+// transaction replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.TXHashTransactions's Users accordingly.
+// Replaces o.R.Users with related.
+// Sets related.R.TXHashTransactions's Users accordingly.
+func (o *Transaction) SetUsers(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*User) error {
+	query := "delete from \"user_transactions\" where \"tx_hash\" = $1"
+	values := []interface{}{o.TXHash}
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, query)
+		fmt.Fprintln(writer, values)
+	}
+	_, err := exec.ExecContext(ctx, query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+
+	removeUsersFromTXHashTransactionsSlice(o, related)
+	if o.R != nil {
+		o.R.Users = nil
+	}
+
+	return o.AddUsers(ctx, exec, insert, related...)
+}
+
+// RemoveUsers relationships from objects passed in.
+// Removes related items from R.Users (uses pointer comparison, removal does not keep order)
+// Sets related.R.TXHashTransactions.
+func (o *Transaction) RemoveUsers(ctx context.Context, exec boil.ContextExecutor, related ...*User) error {
+	if len(related) == 0 {
+		return nil
+	}
+
+	var err error
+	query := fmt.Sprintf(
+		"delete from \"user_transactions\" where \"tx_hash\" = $1 and \"user_id\" in (%s)",
+		strmangle.Placeholders(dialect.UseIndexPlaceholders, len(related), 2, 1),
 	)
-	values := []interface{}{related.ID, o.TXHash}
+	values := []interface{}{o.TXHash}
+	for _, rel := range related {
+		values = append(values, rel.ID)
+	}
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, updateQuery)
+		fmt.Fprintln(writer, query)
 		fmt.Fprintln(writer, values)
 	}
-	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-		return errors.Wrap(err, "failed to update local table")
+	_, err = exec.ExecContext(ctx, query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
 	}
-
-	queries.Assign(&o.UserID, related.ID)
+	removeUsersFromTXHashTransactionsSlice(o, related)
 	if o.R == nil {
-		o.R = &transactionR{
-			User: related,
-		}
-	} else {
-		o.R.User = related
+		return nil
 	}
 
-	if related.R == nil {
-		related.R = &userR{
-			Transactions: TransactionSlice{o},
+	for _, rel := range related {
+		for i, ri := range o.R.Users {
+			if rel != ri {
+				continue
+			}
+
+			ln := len(o.R.Users)
+			if ln > 1 && i < ln-1 {
+				o.R.Users[i] = o.R.Users[ln-1]
+			}
+			o.R.Users = o.R.Users[:ln-1]
+			break
 		}
-	} else {
-		related.R.Transactions = append(related.R.Transactions, o)
 	}
 
 	return nil
 }
 
-// RemoveUser relationship.
-// Sets o.R.User to nil.
-// Removes o from all passed in related items' relationships struct.
-func (o *Transaction) RemoveUser(ctx context.Context, exec boil.ContextExecutor, related *User) error {
-	var err error
-
-	queries.SetScanner(&o.UserID, nil)
-	if _, err = o.Update(ctx, exec, boil.Whitelist("user_id")); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	if o.R != nil {
-		o.R.User = nil
-	}
-	if related == nil || related.R == nil {
-		return nil
-	}
-
-	for i, ri := range related.R.Transactions {
-		if queries.Equal(o.UserID, ri.UserID) {
+func removeUsersFromTXHashTransactionsSlice(o *Transaction, related []*User) {
+	for _, rel := range related {
+		if rel.R == nil {
 			continue
 		}
+		for i, ri := range rel.R.TXHashTransactions {
+			if o.TXHash != ri.TXHash {
+				continue
+			}
 
-		ln := len(related.R.Transactions)
-		if ln > 1 && i < ln-1 {
-			related.R.Transactions[i] = related.R.Transactions[ln-1]
+			ln := len(rel.R.TXHashTransactions)
+			if ln > 1 && i < ln-1 {
+				rel.R.TXHashTransactions[i] = rel.R.TXHashTransactions[ln-1]
+			}
+			rel.R.TXHashTransactions = rel.R.TXHashTransactions[:ln-1]
+			break
 		}
-		related.R.Transactions = related.R.Transactions[:ln-1]
-		break
 	}
-	return nil
 }
 
 // Transactions retrieves all the records using an executor.

@@ -494,7 +494,7 @@ func testUsersInsertWhitelist(t *testing.T) {
 	}
 }
 
-func testUserToManyTransactions(t *testing.T) {
+func testUserToManyTXHashTransactions(t *testing.T) {
 	var err error
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
@@ -519,8 +519,6 @@ func testUserToManyTransactions(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	queries.Assign(&b.UserID, a.ID)
-	queries.Assign(&c.UserID, a.ID)
 	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
@@ -528,17 +526,26 @@ func testUserToManyTransactions(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	check, err := a.Transactions().All(ctx, tx)
+	_, err = tx.Exec("insert into \"user_transactions\" (\"user_id\", \"tx_hash\") values ($1, $2)", a.ID, b.TXHash)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = tx.Exec("insert into \"user_transactions\" (\"user_id\", \"tx_hash\") values ($1, $2)", a.ID, c.TXHash)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := a.TXHashTransactions().All(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	bFound, cFound := false, false
 	for _, v := range check {
-		if queries.Equal(v.UserID, b.UserID) {
+		if v.TXHash == b.TXHash {
 			bFound = true
 		}
-		if queries.Equal(v.UserID, c.UserID) {
+		if v.TXHash == c.TXHash {
 			cFound = true
 		}
 	}
@@ -551,18 +558,18 @@ func testUserToManyTransactions(t *testing.T) {
 	}
 
 	slice := UserSlice{&a}
-	if err = a.L.LoadTransactions(ctx, tx, false, (*[]*User)(&slice), nil); err != nil {
+	if err = a.L.LoadTXHashTransactions(ctx, tx, false, (*[]*User)(&slice), nil); err != nil {
 		t.Fatal(err)
 	}
-	if got := len(a.R.Transactions); got != 2 {
+	if got := len(a.R.TXHashTransactions); got != 2 {
 		t.Error("number of eager loaded records wrong, got:", got)
 	}
 
-	a.R.Transactions = nil
-	if err = a.L.LoadTransactions(ctx, tx, true, &a, nil); err != nil {
+	a.R.TXHashTransactions = nil
+	if err = a.L.LoadTXHashTransactions(ctx, tx, true, &a, nil); err != nil {
 		t.Fatal(err)
 	}
-	if got := len(a.R.Transactions); got != 2 {
+	if got := len(a.R.TXHashTransactions); got != 2 {
 		t.Error("number of eager loaded records wrong, got:", got)
 	}
 
@@ -571,7 +578,7 @@ func testUserToManyTransactions(t *testing.T) {
 	}
 }
 
-func testUserToManyAddOpTransactions(t *testing.T) {
+func testUserToManyAddOpTXHashTransactions(t *testing.T) {
 	var err error
 
 	ctx := context.Background()
@@ -608,7 +615,7 @@ func testUserToManyAddOpTransactions(t *testing.T) {
 	}
 
 	for i, x := range foreignersSplitByInsertion {
-		err = a.AddTransactions(ctx, tx, i != 0, x...)
+		err = a.AddTXHashTransactions(ctx, tx, i != 0, x...)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -616,28 +623,21 @@ func testUserToManyAddOpTransactions(t *testing.T) {
 		first := x[0]
 		second := x[1]
 
-		if !queries.Equal(a.ID, first.UserID) {
-			t.Error("foreign key was wrong value", a.ID, first.UserID)
+		if first.R.Users[0] != &a {
+			t.Error("relationship was not added properly to the slice")
 		}
-		if !queries.Equal(a.ID, second.UserID) {
-			t.Error("foreign key was wrong value", a.ID, second.UserID)
-		}
-
-		if first.R.User != &a {
-			t.Error("relationship was not added properly to the foreign slice")
-		}
-		if second.R.User != &a {
-			t.Error("relationship was not added properly to the foreign slice")
+		if second.R.Users[0] != &a {
+			t.Error("relationship was not added properly to the slice")
 		}
 
-		if a.R.Transactions[i*2] != first {
+		if a.R.TXHashTransactions[i*2] != first {
 			t.Error("relationship struct slice not set to correct value")
 		}
-		if a.R.Transactions[i*2+1] != second {
+		if a.R.TXHashTransactions[i*2+1] != second {
 			t.Error("relationship struct slice not set to correct value")
 		}
 
-		count, err := a.Transactions().Count(ctx, tx)
+		count, err := a.TXHashTransactions().Count(ctx, tx)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -647,7 +647,7 @@ func testUserToManyAddOpTransactions(t *testing.T) {
 	}
 }
 
-func testUserToManySetOpTransactions(t *testing.T) {
+func testUserToManySetOpTXHashTransactions(t *testing.T) {
 	var err error
 
 	ctx := context.Background()
@@ -678,25 +678,12 @@ func testUserToManySetOpTransactions(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = a.SetTransactions(ctx, tx, false, &b, &c)
+	err = a.SetTXHashTransactions(ctx, tx, false, &b, &c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	count, err := a.Transactions().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.SetTransactions(ctx, tx, true, &d, &e)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.Transactions().Count(ctx, tx)
+	count, err := a.TXHashTransactions().Count(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -704,41 +691,45 @@ func testUserToManySetOpTransactions(t *testing.T) {
 		t.Error("count was wrong:", count)
 	}
 
-	if !queries.IsValuerNil(b.UserID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.UserID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-	if !queries.Equal(a.ID, d.UserID) {
-		t.Error("foreign key was wrong value", a.ID, d.UserID)
-	}
-	if !queries.Equal(a.ID, e.UserID) {
-		t.Error("foreign key was wrong value", a.ID, e.UserID)
+	err = a.SetTXHashTransactions(ctx, tx, true, &d, &e)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	if b.R.User != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
+	count, err = a.TXHashTransactions().Count(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if c.R.User != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.User != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-	if e.R.User != &a {
-		t.Error("relationship was not added properly to the foreign struct")
+	if count != 2 {
+		t.Error("count was wrong:", count)
 	}
 
-	if a.R.Transactions[0] != &d {
+	// The following checks cannot be implemented since we have no handle
+	// to these when we call Set(). Leaving them here as wishful thinking
+	// and to let people know there's dragons.
+	//
+	// if len(b.R.Users) != 0 {
+	// 	t.Error("relationship was not removed properly from the slice")
+	// }
+	// if len(c.R.Users) != 0 {
+	// 	t.Error("relationship was not removed properly from the slice")
+	// }
+	if d.R.Users[0] != &a {
+		t.Error("relationship was not added properly to the slice")
+	}
+	if e.R.Users[0] != &a {
+		t.Error("relationship was not added properly to the slice")
+	}
+
+	if a.R.TXHashTransactions[0] != &d {
 		t.Error("relationship struct slice not set to correct value")
 	}
-	if a.R.Transactions[1] != &e {
+	if a.R.TXHashTransactions[1] != &e {
 		t.Error("relationship struct slice not set to correct value")
 	}
 }
 
-func testUserToManyRemoveOpTransactions(t *testing.T) {
+func testUserToManyRemoveOpTXHashTransactions(t *testing.T) {
 	var err error
 
 	ctx := context.Background()
@@ -763,12 +754,12 @@ func testUserToManyRemoveOpTransactions(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = a.AddTransactions(ctx, tx, true, foreigners...)
+	err = a.AddTXHashTransactions(ctx, tx, true, foreigners...)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	count, err := a.Transactions().Count(ctx, tx)
+	count, err := a.TXHashTransactions().Count(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -776,12 +767,12 @@ func testUserToManyRemoveOpTransactions(t *testing.T) {
 		t.Error("count was wrong:", count)
 	}
 
-	err = a.RemoveTransactions(ctx, tx, foreigners[:2]...)
+	err = a.RemoveTXHashTransactions(ctx, tx, foreigners[:2]...)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	count, err = a.Transactions().Count(ctx, tx)
+	count, err = a.TXHashTransactions().Count(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -789,35 +780,28 @@ func testUserToManyRemoveOpTransactions(t *testing.T) {
 		t.Error("count was wrong:", count)
 	}
 
-	if !queries.IsValuerNil(b.UserID) {
-		t.Error("want b's foreign key value to be nil")
+	if len(b.R.Users) != 0 {
+		t.Error("relationship was not removed properly from the slice")
 	}
-	if !queries.IsValuerNil(c.UserID) {
-		t.Error("want c's foreign key value to be nil")
+	if len(c.R.Users) != 0 {
+		t.Error("relationship was not removed properly from the slice")
 	}
-
-	if b.R.User != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
+	if d.R.Users[0] != &a {
+		t.Error("relationship was not added properly to the foreign struct")
 	}
-	if c.R.User != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.User != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-	if e.R.User != &a {
-		t.Error("relationship to a should have been preserved")
+	if e.R.Users[0] != &a {
+		t.Error("relationship was not added properly to the foreign struct")
 	}
 
-	if len(a.R.Transactions) != 2 {
+	if len(a.R.TXHashTransactions) != 2 {
 		t.Error("should have preserved two relationships")
 	}
 
 	// Removal doesn't do a stable deletion for performance so we have to flip the order
-	if a.R.Transactions[1] != &d {
+	if a.R.TXHashTransactions[1] != &d {
 		t.Error("relationship to d should have been preserved")
 	}
-	if a.R.Transactions[0] != &e {
+	if a.R.TXHashTransactions[0] != &e {
 		t.Error("relationship to e should have been preserved")
 	}
 }
