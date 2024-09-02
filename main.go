@@ -28,10 +28,6 @@ func main() {
 		log.WithFields(log.Fields{
 			"status": "starting",
 			"port":   vp.GetString(cmd.APIPort),
-			// "node":   vp.GetString(cmd.EthNodeURL),
-			// "db":     vp.GetString(cmd.DBConnectionURL),
-			// "jwt":    vp.GetString(cmd.JWTSecret),
-			// "log":    vp.GetString(cmd.LogLevel),
 		}).Info("lime ethereum fetcher server")
 
 		cmd.InitShutdownHandler(cancel)

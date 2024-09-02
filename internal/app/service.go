@@ -13,22 +13,32 @@ import (
 
 type ServiceProvider interface {
 	GetTransactionsByHashes(txHashes []string, userID int) ([]*models.Transaction, error)
+	GetAllTransactions() ([]*models.Transaction, error)
 }
 
 type Service struct {
 	ctx context.Context
 	vp  *viper.Viper
-	st  store.StoreProvider
+	st  store.StorageProvider
 	net network.EthereumProvider
 }
 
-func NewService(ctx context.Context, vp *viper.Viper, st store.StoreProvider, net network.EthereumProvider) *Service {
+func NewService(ctx context.Context, vp *viper.Viper, st store.StorageProvider, net network.EthereumProvider) *Service {
 	return &Service{
 		ctx: ctx,
 		vp:  vp,
 		st:  st,
 		net: net,
 	}
+}
+
+func (ap *Service) GetAllTransactions() ([]*models.Transaction, error) {
+	// fetch all stored tx from the database
+	txList, err := ap.st.GetAllTransactions()
+	if err != nil {
+		return nil, err
+	}
+	return txList, nil
 }
 
 func (ap *Service) GetTransactionsByHashes(txHashes []string, userID int) ([]*models.Transaction, error) {

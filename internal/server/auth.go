@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"regexp"
 
+	"ethereum-fetcher/internal/store"
+
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -30,7 +32,7 @@ func (wab *AuthBearerMiddleware) Authenticate(w http.ResponseWriter, r *http.Req
 	// extract the token from the header
 	authHeader := r.Header.Get("Authorization")
 
-	ctx := context.WithValue(r.Context(), userIDKey, 0)
+	ctx := context.WithValue(r.Context(), userIDKey, store.NonAuthenticatedUser)
 
 	// continue with request processing when no token is provided and optional flag is true
 	if wab.optional && len(authHeader) == 0 {

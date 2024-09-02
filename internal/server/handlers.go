@@ -2,18 +2,23 @@ package server
 
 import (
 	"database/sql"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"math/big"
 	"net/http"
+	"strings"
 	"time"
 
 	"ethereum-fetcher/cmd"
 	"ethereum-fetcher/internal/store/pg/models"
 
+	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -33,7 +38,11 @@ type responseAuthenticate struct {
 }
 
 type requestGetTransactionsByHashes struct {
-	TransactionHashes []string `form:"transactionHashes" validate:"required,dive,len=66,hexadecimal"`
+	TransactionHashes []string `validate:"required,max=20,dive,len=66,hexadecimal"`
+}
+
+type requestGetTransactionsByRLP struct {
+	RLPHex string `validate:"required,max=3000,hexadecimal"`
 }
 
 type Transaction struct {
@@ -53,36 +62,76 @@ type responseGetTransactionsByHashes struct {
 	Transactions []*Transaction `json:"transactions"`
 }
 
+type responseGetAllTransactions struct {
+	Transactions []*Transaction `json:"transactions"`
+}
+
 // GetTransactionsByHashes retrieves eth transactions by tx hashes
 func (ep *EndPoint) GetTransactionsByHashes(w http.ResponseWriter, r *http.Request) {
 	txHashes := r.URL.Query()["transactionHashes"]
 
 	reqParams := requestGetTransactionsByHashes{TransactionHashes: txHashes}
 
-	// Validate the parameters
 	validate := validator.New()
 	err := validate.Struct(reqParams)
 	if err != nil {
+		log.Errorf("cannot validate transactionHashes query parameter: %v", err)
 		writeJSONError(w, http.StatusUnprocessableEntity, ErrValidationFailed)
 		return
 	}
 
-	// extract the user ID - zero value for "no user"
-	userID, _ := r.Context().Value(userIDKey).(int)
+	res, done := ep.getTransactionsByHashes(w, r, txHashes, err)
+	if done {
+		return
+	}
 
-	txList, err := ep.ap.GetTransactionsByHashes(txHashes, userID)
+	writeJSONResponse(w, http.StatusOK, res)
+}
+
+// GetTransactionsByRLP retrieves eth transactions by RLP encoded list of hashes
+func (ep *EndPoint) GetTransactionsByRLP(w http.ResponseWriter, r *http.Request) {
+	rlpHex := mux.Vars(r)["rlphex"]
+
+	reqParams := requestGetTransactionsByRLP{RLPHex: rlpHex}
+
+	validate := validator.New()
+	err := validate.Struct(reqParams)
 	if err != nil {
-		log.Errorf("cannot retrieve transactions by hashes: %v", err)
+		log.Errorf("cannot validate rlphex url path: %v", err)
+		writeJSONError(w, http.StatusUnprocessableEntity, ErrValidationFailed)
+		return
+	}
+
+	// convert rlp hex to hex hashes
+	txHashes, err := decodeRLPToTxHashes(rlpHex)
+	if err != nil {
+		log.Errorf("cannot decode rlphex url path: %v", err)
+		writeJSONError(w, http.StatusUnprocessableEntity, ErrValidationFailed)
+		return
+	}
+
+	res, done := ep.getTransactionsByHashes(w, r, txHashes, err)
+	if done {
+		return
+	}
+
+	writeJSONResponse(w, http.StatusOK, res)
+}
+
+// GetAllTransactions retrieves all transactions store in the database
+func (ep *EndPoint) GetAllTransactions(w http.ResponseWriter, _ *http.Request) {
+	txList, err := ep.ap.GetAllTransactions()
+	if err != nil {
+		log.Errorf("cannot retrieve all transactions: %v", err)
 		writeInternalServerError(w)
 		return
 	}
 
-	res := responseGetTransactionsByHashes{
+	res := responseGetAllTransactions{
 		Transactions: []*Transaction{},
 	}
 
 	for _, tx := range txList {
-		//blockNumber, _ := tx.BlockNumber.Int64()
 		blockNumber := new(big.Int)
 		tx.BlockNumber.Int(blockNumber)
 
@@ -100,86 +149,6 @@ func (ep *EndPoint) GetTransactionsByHashes(w http.ResponseWriter, r *http.Reque
 				Value:           tx.Value,
 			},
 		)
-	}
-
-	writeJSONResponse(w, http.StatusOK, res)
-}
-
-// GetTransactionsByRLP retrieves eth transactions by tx hashes
-func (ep *EndPoint) GetTransactionsByRLP(w http.ResponseWriter, r *http.Request) {
-	txHashes := r.URL.Query()["transactionHashes"]
-
-	reqParams := requestGetTransactionsByHashes{TransactionHashes: txHashes}
-
-	// Validate the parameters
-	validate := validator.New()
-	err := validate.Struct(reqParams)
-	if err != nil {
-		writeJSONError(w, http.StatusUnprocessableEntity, ErrValidationFailed)
-		return
-	}
-
-	res := responseGetTransactionsByHashes{
-		Transactions: []*Transaction{
-			{
-				Hash:        "0x017e74eefee2118098a44541bba086b1a162d5f9fd8ef629733b23a56a0ef7e0",
-				Status:      0,
-				BlockHash:   "",
-				BlockNumber: new(big.Int),
-				From:        "",
-				To: null.String{
-					String: "",
-					Valid:  true,
-				},
-				ContractAddress: null.String{
-					String: "",
-					Valid:  true,
-				},
-				LogsCount: 0,
-				Input:     "",
-				Value:     "0",
-			},
-		},
-	}
-
-	writeJSONResponse(w, http.StatusOK, res)
-}
-
-// GetAllTransactions retrieves all transactions store in the database
-func (ep *EndPoint) GetAllTransactions(w http.ResponseWriter, r *http.Request) {
-	txHashes := r.URL.Query()["transactionHashes"]
-
-	reqParams := requestGetTransactionsByHashes{TransactionHashes: txHashes}
-
-	// Validate the parameters
-	validate := validator.New()
-	err := validate.Struct(reqParams)
-	if err != nil {
-		writeJSONError(w, http.StatusUnprocessableEntity, ErrValidationFailed)
-		return
-	}
-
-	res := responseGetTransactionsByHashes{
-		Transactions: []*Transaction{
-			{
-				Hash:        "0x017e74eefee2118098a44541bba086b1a162d5f9fd8ef629733b23a56a0ef7e0",
-				Status:      0,
-				BlockHash:   "",
-				BlockNumber: new(big.Int),
-				From:        "",
-				To: null.String{
-					String: "",
-					Valid:  true,
-				},
-				ContractAddress: null.String{
-					String: "",
-					Valid:  true,
-				},
-				LogsCount: 0,
-				Input:     "",
-				Value:     "0",
-			},
-		},
 	}
 
 	writeJSONResponse(w, http.StatusOK, res)
@@ -233,6 +202,49 @@ func (ep *EndPoint) Authenticate(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, http.StatusOK, res)
 }
 
+func (ep *EndPoint) getTransactionsByHashes(w http.ResponseWriter, r *http.Request, txHashes []string, err error,
+) (responseGetTransactionsByHashes, bool) {
+	// unify the hash format
+	for i := range txHashes {
+		txHashes[i] = strings.ToLower(txHashes[i])
+	}
+
+	// extract the user ID - zero value for "no user"
+	userID, _ := r.Context().Value(userIDKey).(int)
+
+	txList, err := ep.ap.GetTransactionsByHashes(txHashes, userID)
+	if err != nil {
+		log.Errorf("cannot retrieve transactions by hashes: %v", err)
+		writeInternalServerError(w)
+		return responseGetTransactionsByHashes{}, true
+	}
+
+	res := responseGetTransactionsByHashes{
+		Transactions: []*Transaction{},
+	}
+
+	for _, tx := range txList {
+		blockNumber := new(big.Int)
+		tx.BlockNumber.Int(blockNumber)
+
+		res.Transactions = append(res.Transactions,
+			&Transaction{
+				Hash:            tx.TXHash,
+				Status:          tx.TXStatus,
+				BlockHash:       tx.BlockHash,
+				BlockNumber:     blockNumber,
+				From:            tx.FromAddress,
+				To:              tx.ToAddress,
+				ContractAddress: tx.ContractAddress,
+				LogsCount:       int(tx.LogsCount),
+				Input:           tx.Input,
+				Value:           tx.Value,
+			},
+		)
+	}
+	return res, false
+}
+
 func createToken(jwtSecret string, userID int) (string, error) {
 	iat := time.Now()
 	exp := iat.Add(4 * time.Hour)
@@ -246,4 +258,21 @@ func createToken(jwtSecret string, userID int) (string, error) {
 
 	// sign and get the encoded token as a string using the secret
 	return token.SignedString([]byte(jwtSecret))
+}
+
+func decodeRLPToTxHashes(rlpHex string) ([]string, error) {
+	// decode the {rlphex} path parameter to bytes
+	rlpBytes, err := hex.DecodeString(rlpHex)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode hex string: %v", err)
+	}
+
+	// decode the RLP bytes to string slice
+	var txHashes []string
+	err = rlp.DecodeBytes(rlpBytes, &txHashes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode RLP: %v", err)
+	}
+
+	return txHashes, nil
 }

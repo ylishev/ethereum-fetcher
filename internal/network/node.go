@@ -5,6 +5,8 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"slices"
+	"strings"
 	"sync"
 	"time"
 
@@ -108,11 +110,15 @@ func (n *EthNode) GetTransactionByHash(hash string) (*models.Transaction, error)
 	}
 
 	if len(errList) > 0 {
+		// sort the errors list, for consistency, since both goroutines might return in random order
+		slices.SortFunc(errList, func(a, b error) int {
+			return strings.Compare(a.Error(), b.Error())
+		})
 		return nil, errors.Join(errList...)
 	}
 
 	var toAddress null.String
-	if *ethTX.To() != (common.Address{}) {
+	if addr := ethTX.To(); addr != nil && *addr != (common.Address{}) {
 		toAddress = null.StringFrom(ethTX.To().Hex())
 	}
 

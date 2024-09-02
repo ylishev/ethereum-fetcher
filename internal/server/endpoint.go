@@ -24,12 +24,12 @@ type EndPointProvider interface {
 type EndPoint struct {
 	ctx context.Context
 	vp  *viper.Viper
-	st  store.StoreProvider
+	st  store.StorageProvider
 	ap  app.ServiceProvider
 }
 
 // NewEndPoint returns a EndPoint object that provides endpoints and shared resources.
-func NewEndPoint(ctx context.Context, vp *viper.Viper, ap app.ServiceProvider, st store.StoreProvider) *EndPoint {
+func NewEndPoint(ctx context.Context, vp *viper.Viper, ap app.ServiceProvider, st store.StorageProvider) *EndPoint {
 	return &EndPoint{
 		ctx: ctx,
 		vp:  vp,

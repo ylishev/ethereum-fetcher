@@ -72,7 +72,7 @@ func NewContextWithCancel() (ctx context.Context, cancel context.CancelFunc) {
 	return context.WithCancel(context.Background())
 }
 
-func NewStore(ctx context.Context, vp *viper.Viper) (store.StoreProvider, error) {
+func NewStore(ctx context.Context, vp *viper.Viper) (store.StorageProvider, error) {
 	return pg.NewStore(ctx, vp)
 }
 
@@ -80,12 +80,12 @@ func NewEthNode(ctx context.Context, vp *viper.Viper) network.EthereumProvider {
 	return network.NewEthNode(ctx, vp)
 }
 
-func NewAppService(ctx context.Context, vp *viper.Viper, st store.StoreProvider, net network.EthereumProvider,
+func NewAppService(ctx context.Context, vp *viper.Viper, st store.StorageProvider, net network.EthereumProvider,
 ) app.ServiceProvider {
 	return app.NewService(ctx, vp, st, net)
 }
 
-func NewEndpoint(ctx context.Context, vp *viper.Viper, ap app.ServiceProvider, st store.StoreProvider,
+func NewEndpoint(ctx context.Context, vp *viper.Viper, ap app.ServiceProvider, st store.StorageProvider,
 ) server.EndPointProvider {
 	return server.NewEndPoint(ctx, vp, ap, st)
 }
