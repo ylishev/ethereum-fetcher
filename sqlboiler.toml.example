@@ -7,6 +7,7 @@ schema  = "public"
 
 # Set this to true if you want to wipe the output directory before generation
 wipe = true
+no-tests = true
 
 [psql]
   # The database connection details

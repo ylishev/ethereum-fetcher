@@ -1,7 +1,6 @@
 package server
 
 import (
-	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -13,7 +12,7 @@ import (
 	"time"
 
 	"ethereum-fetcher/cmd"
-	"ethereum-fetcher/internal/store/pg/models"
+	"ethereum-fetcher/internal/store"
 
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/go-playground/validator/v10"
@@ -21,8 +20,6 @@ import (
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"github.com/volatiletech/null/v8"
-	"github.com/volatiletech/sqlboiler/v4/boil"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // ErrValidationFailed describes an error when the key is not found
@@ -80,7 +77,7 @@ func (ep *EndPoint) GetTransactionsByHashes(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	res, done := ep.getTransactionsByHashes(w, r, txHashes, err)
+	res, done := ep.getTransactionsByHashes(w, r, txHashes)
 	if done {
 		return
 	}
@@ -110,7 +107,7 @@ func (ep *EndPoint) GetTransactionsByRLP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	res, done := ep.getTransactionsByHashes(w, r, txHashes, err)
+	res, done := ep.getTransactionsByHashes(w, r, txHashes)
 	if done {
 		return
 	}
@@ -118,11 +115,50 @@ func (ep *EndPoint) GetTransactionsByRLP(w http.ResponseWriter, r *http.Request)
 	writeJSONResponse(w, http.StatusOK, res)
 }
 
-// GetAllTransactions retrieves all transactions store in the database
+// GetAllTransactions retrieves all transactions stored in the database
 func (ep *EndPoint) GetAllTransactions(w http.ResponseWriter, _ *http.Request) {
 	txList, err := ep.ap.GetAllTransactions()
 	if err != nil {
 		log.Errorf("cannot retrieve all transactions: %v", err)
+		writeInternalServerError(w)
+		return
+	}
+
+	res := responseGetAllTransactions{
+		Transactions: []*Transaction{},
+	}
+
+	for _, tx := range txList {
+		blockNumber := new(big.Int)
+		tx.BlockNumber.Int(blockNumber)
+
+		res.Transactions = append(res.Transactions,
+			&Transaction{
+				Hash:            tx.TXHash,
+				Status:          tx.TXStatus,
+				BlockHash:       tx.BlockHash,
+				BlockNumber:     blockNumber,
+				From:            tx.FromAddress,
+				To:              tx.ToAddress,
+				ContractAddress: tx.ContractAddress,
+				LogsCount:       int(tx.LogsCount),
+				Input:           tx.Input,
+				Value:           tx.Value,
+			},
+		)
+	}
+
+	writeJSONResponse(w, http.StatusOK, res)
+}
+
+// GetMyTransactions retrieves "my" transactions stored in the database
+func (ep *EndPoint) GetMyTransactions(w http.ResponseWriter, r *http.Request) {
+	// extract the user ID, cannot be missing
+	userID, _ := r.Context().Value(userIDKey).(int)
+
+	txList, err := ep.ap.GetMyTransactions(userID)
+	if err != nil {
+		log.Errorf("cannot retrieve my transactions: %v", err)
 		writeInternalServerError(w)
 		return
 	}
@@ -175,18 +211,15 @@ func (ep *EndPoint) Authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := models.Users(
-		qm.Select(models.UserColumns.ID),
-		qm.Where(models.UserColumns.Username+"=?", authRequest.Username),
-		qm.And(models.UserColumns.Password+"= crypt(?, "+models.UserColumns.Password+")", authRequest.Password),
-	).One(ep.ctx, boil.GetContextDB())
+	user, err := ep.ap.GetUser(authRequest.Username, authRequest.Password)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			writeUnauthorizedError(w)
-			return
-		}
-		log.Errorf("cannot read users table: %v", err)
+		log.Errorf("cannot get user info: %v", err)
 		writeInternalServerError(w)
+		return
+	}
+
+	if user.ID == store.NonAuthenticatedUser {
+		writeUnauthorizedError(w)
 		return
 	}
 
@@ -202,7 +235,7 @@ func (ep *EndPoint) Authenticate(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, http.StatusOK, res)
 }
 
-func (ep *EndPoint) getTransactionsByHashes(w http.ResponseWriter, r *http.Request, txHashes []string, err error,
+func (ep *EndPoint) getTransactionsByHashes(w http.ResponseWriter, r *http.Request, txHashes []string,
 ) (responseGetTransactionsByHashes, bool) {
 	// unify the hash format
 	for i := range txHashes {

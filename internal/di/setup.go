@@ -85,9 +85,8 @@ func NewAppService(ctx context.Context, vp *viper.Viper, st store.StorageProvide
 	return app.NewService(ctx, vp, st, net)
 }
 
-func NewEndpoint(ctx context.Context, vp *viper.Viper, ap app.ServiceProvider, st store.StorageProvider,
-) server.EndPointProvider {
-	return server.NewEndPoint(ctx, vp, ap, st)
+func NewEndpoint(ctx context.Context, vp *viper.Viper, ap app.ServiceProvider) server.EndPointProvider {
+	return server.NewEndPoint(ctx, vp, ap)
 }
 
 func NewWebServer(ctx context.Context, router *mux.Router,

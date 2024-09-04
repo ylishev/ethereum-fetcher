@@ -4,15 +4,17 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"regexp"
 
 	"ethereum-fetcher/internal/store"
 
 	"github.com/golang-jwt/jwt/v4"
 )
 
+type contextKey string
+
 const (
-	userIDKey string = "LimeUserID"
+	userIDKey    contextKey = "LimeUserID"
+	authTokenKey string     = "AUTH_TOKEN"
 )
 
 type AuthBearerMiddleware struct {
@@ -30,21 +32,18 @@ func NewAuthBearerMiddleware(jwtSecret string, next http.HandlerFunc, optional b
 // in case the "optional" flag is true and the token is missing
 func (wab *AuthBearerMiddleware) Authenticate(w http.ResponseWriter, r *http.Request) {
 	// extract the token from the header
-	authHeader := r.Header.Get("Authorization")
+	authHeader := r.Header.Get(authTokenKey)
 
 	ctx := context.WithValue(r.Context(), userIDKey, store.NonAuthenticatedUser)
 
 	// continue with request processing when no token is provided and optional flag is true
-	if wab.optional && len(authHeader) == 0 {
+	if wab.optional && authHeader == "" {
 		wab.next(w, r.WithContext(ctx))
 		return
 	}
 
-	trimRe := regexp.MustCompile(`^(?i)Bearer\s`)
-	tokenString := trimRe.ReplaceAllString(authHeader, "")
-
 	// verify the token
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(authHeader, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}

@@ -309,3 +309,98 @@ Improve the documentation with:
 - Your strategy for Scalability of the service
 - How would you approach making this service paid? How would the architecture change?
 - How would you approach failing Ethereum Node URL?
+
+
+```plantuml
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(user, "User", "[might be optional]")
+
+System_Boundary(serverBoundary, "REST API Server") {
+    System(server, "REST API Server", "Handles user requests for Ethereum transactions")
+}
+
+System_Ext(db, "PostgreSQL Database", "Stores Ethereum transaction data")
+System_Ext(ethNode, "Ethereum Node", "External Ethereum blockchain node")
+
+Rel(user, server, "Uses API to request transaction information")
+Rel(server, db, "Fetches and stores transaction data")
+Rel(server, ethNode, "Fetches transaction data if not in DB")
+
+@enduml
+
+
+```
+
+```plantuml
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User")
+
+System_Boundary(server, "REST API Server") {
+    Container(api, "Endpoint Router", "Golang", "Handles HTTP requests and routing")
+    Container(AppService, "App Service", "Golang", "Processes transaction-related requests")
+    Container(authService, "Authentication", "Golang", "Handles user authentication and JWT token management")
+    Container(db, "PostgreSQL Database", "PostgreSQL", "Stores transaction data")
+    Container_Ext(ethNode, "Ethereum Node", "External", "Fetches Ethereum transactions")
+}
+
+Rel(user, api, "Sends HTTP requests")
+Rel(api, authService, "Sends authentication requests")
+Rel(api, AppService, "Forwards transaction requests")
+Rel(AppService, db, "Queries and stores transaction data")
+Rel(AppService, ethNode, "Fetches transaction data if not in DB")
+Rel(authService, db, "Queries and stores user data")
+
+@enduml
+```
+
+```plantuml
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "User")
+
+System_Boundary(server, "REST API Server") {
+    Container(api, "Endpoint Router", "Golang", "Handles HTTP requests and routing") {
+        Component(authMiddleware, "Auth Middleware", "Golang", "Validates JWT tokens and auth users")
+        Component(authEndpoint, "Authenticate Endpoint", "Golang", "Handles POST /lime/authenticate and creates JWT")
+        Component(transactionHashEndpoint, "Transaction Hashes Endpoint", "Golang", "Handles GET /lime/eth?transactionHashes")
+        Component(rlpHexEndpoint, "RLP Hex Endpoint", "Golang", "Handles GET /lime/eth/:rlphex")
+        Component(allTransactionsEndpoint, "All Transactions Endpoint", "Golang", "Handles GET /lime/all")
+        Component(userTransactionsEndpoint, "User Transactions Endpoint", "Golang", "Handles GET /lime/my")
+    }
+    
+    Container(appService, "App Service", "Golang", "Processes transaction-related requests") {
+        Component(transactionFetcher, "Transaction Fetcher", "Golang", "Fetches transactions from DB or Ethereum node")
+        Component(transactionStorage, "Transaction Storage", "Golang", "Stores transaction data into the database")
+    }
+    
+    'Container(authService, "Authentication", "Golang", "Handles user authentication") {
+    '    Component(authMiddleware, "JWT Authentication Middleware", "Golang", "Validates JWT tokens and authorize users")
+    '}
+
+    Container(db, "PostgreSQL Database", "PostgreSQL", "Stores Ethereum transaction data")
+    Container_Ext(ethNode, "Ethereum Node", "External", "Fetches Ethereum transactions")
+}
+
+Rel(user, authEndpoint, "POST /lime/authenticate with username/password", "public access")
+Rel(user, transactionHashEndpoint, "GET /lime/eth?transactionHashes", "optional JWT")
+Rel(user, rlpHexEndpoint, "GET /lime/eth/:rlphex", "optional JWT")
+Rel(user, allTransactionsEndpoint, "GET /lime/all", "public access")
+Rel(user, userTransactionsEndpoint, "GET /lime/my", "requires JWT")
+
+Rel(authEndpoint, transactionFetcher, "Validates credentials and returns JWT")
+Rel(transactionHashEndpoint, transactionFetcher, "Fetches transactions")
+Rel(rlpHexEndpoint, transactionFetcher, "Fetches transactions")
+Rel(allTransactionsEndpoint, transactionFetcher, "Fetches all transactions")
+Rel(userTransactionsEndpoint, transactionFetcher, "Fetches user-specific transactions")
+
+Rel(transactionFetcher, transactionStorage, "Stores transaction data into DB")
+Rel(transactionFetcher, db, "Queries transaction data from DB")
+Rel(transactionFetcher, ethNode, "Queries transaction data from Ethereum node if not found in DB")
+
+@enduml
+```

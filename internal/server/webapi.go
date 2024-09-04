@@ -31,20 +31,26 @@ func NewServer(ctx context.Context, router *mux.Router, endPointProvider EndPoin
 // Run method starts the http server
 func (web *WebServer) Run(port int) {
 	web.endPointProvider.Register(web.router)
-	httpServer := &http.Server{Addr: ":" + strconv.Itoa(port), Handler: web.router}
+	httpServer := &http.Server{Addr: ":" + strconv.Itoa(port), Handler: web.router, ReadHeaderTimeout: 5 * time.Second}
+
+	httpServerDone := make(chan struct{})
+
 	go func() {
-		for {
-			select {
-			case <-web.ctx.Done():
-				ctx, cancelFunc := context.WithTimeout(context.Background(), 1*time.Second)
-				defer cancelFunc()
-				httpServer.Shutdown(ctx)
-				return
-			}
+		select {
+		case <-web.ctx.Done():
+			// in case of Ctrl+C, shutdown server gracefully
+		case <-httpServerDone:
+			// the http server is already gone, nothing to do more
+			return
 		}
+
+		ctx, cancelFunc := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancelFunc()
+		_ = httpServer.Shutdown(ctx)
 	}()
 	if err := httpServer.ListenAndServe(); err != nil {
 		if !errors.Is(err, http.ErrServerClosed) {
+			close(httpServerDone)
 			log.Error(err)
 		}
 	}
@@ -67,7 +73,11 @@ func writeJSONResponse(w http.ResponseWriter, httpCode int, payload interface{})
 	w.WriteHeader(httpCode)
 
 	if payload != nil {
-		w.Write(response)
+		_, err := w.Write(response)
+		if err != nil {
+			log.Error("cannot write response to the client")
+			return
+		}
 	}
 }
 
@@ -87,8 +97,3 @@ func writeBadRequestError(w http.ResponseWriter) {
 func writeInternalServerError(w http.ResponseWriter) {
 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 }
-
-// compile-time check to ensure EndPoint implements the interface
-var (
-	_ EndPointProvider = &EndPoint{}
-)

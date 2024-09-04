@@ -16,6 +16,7 @@ const (
 	DefaultNodeCredit = 10
 )
 
+// NewViper creates a Viper instance responsible for env variables and default configuration
 func NewViper() *viper.Viper {
 	vp := viper.New()
 	vp.AutomaticEnv()

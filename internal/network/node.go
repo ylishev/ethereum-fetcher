@@ -20,10 +20,6 @@ import (
 	boilTypes "github.com/volatiletech/sqlboiler/v4/types"
 )
 
-type EthereumProvider interface {
-	GetTransactionByHash(hash string) (*models.Transaction, error)
-}
-
 type Transaction struct {
 	TxHash          string      `json:"transactionHash"`
 	TxStatus        int         `json:"transactionStatus"`
@@ -37,6 +33,7 @@ type Transaction struct {
 	Value           string      `json:"value"`
 }
 
+// GetTransactionByHash fetch the transaction from the node by provided hash
 func (n *EthNode) GetTransactionByHash(hash string) (*models.Transaction, error) {
 	var wg sync.WaitGroup
 
@@ -48,47 +45,10 @@ func (n *EthNode) GetTransactionByHash(hash string) (*models.Transaction, error)
 	errCh := make(chan error, 2)
 
 	// fetch both requests at the same time
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		// fetch a transaction by its hash, but obey the rate limitations of the node
-		for {
-			if n.rateLimiter.Allow() {
-				var err error
-				ethTX, _, err = n.client.TransactionByHash(n.ctx, txHash)
-				if err != nil {
-					select {
-					case errCh <- fmt.Errorf("failed to fetch transaction details: %v", err):
-					case <-n.ctx.Done():
-					}
-				}
-				return
-			} else {
-				time.Sleep(n.rateLimiter.WaitDuration())
-			}
-		}
-	}()
+	wg.Add(2)
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		// fetch the transaction receipt
-		for {
-			if n.rateLimiter.Allow() {
-				var err error
-				receipt, err = n.client.TransactionReceipt(n.ctx, txHash)
-				if err != nil {
-					select {
-					case errCh <- fmt.Errorf("failed to fetch transaction receipt: %v", err):
-					case <-n.ctx.Done():
-					}
-				}
-				return
-			} else {
-				time.Sleep(n.rateLimiter.WaitDuration())
-			}
-		}
-	}()
+	n.fetchTransactionDetails(&wg, &ethTX, txHash, errCh)
+	n.fetchTransactionReceipt(&wg, &receipt, txHash, errCh)
 
 	// close the error channel when both goroutines are done
 	go func() {
@@ -129,13 +89,18 @@ func (n *EthNode) GetTransactionByHash(hash string) (*models.Transaction, error)
 	bigDec := new(decimal.Big)
 	bigDec.SetBigMantScale(receipt.BlockNumber, 0)
 
+	fromAddress, err := getTransactionSender(ethTX)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching ethereum tx data: %v", err)
+	}
+
 	tx := &models.Transaction{
 		TXHash: ethTX.Hash().Hex(),
 		// nolint:gosec // handles only the status of the transaction either 1 (success) or 0 (failure)
 		TXStatus:        int(receipt.Status),
 		BlockHash:       receipt.BlockHash.Hex(),
 		BlockNumber:     boilTypes.NewDecimal(bigDec),
-		FromAddress:     getTransactionSender(ethTX),
+		FromAddress:     fromAddress,
 		ToAddress:       toAddress,
 		ContractAddress: contractAddress,
 		LogsCount:       int64(len(receipt.Logs)),
@@ -146,11 +111,56 @@ func (n *EthNode) GetTransactionByHash(hash string) (*models.Transaction, error)
 	return tx, nil
 }
 
-// Helper function to get the sender address
-func getTransactionSender(tx *types.Transaction) string {
+func (n *EthNode) fetchTransactionReceipt(wg *sync.WaitGroup, receipt **types.Receipt, txHash common.Hash,
+	errCh chan error) {
+	go func() {
+		defer wg.Done()
+		// fetch the transaction receipt
+		for {
+			if n.rateLimiter.Allow() {
+				var err error
+				*receipt, err = n.client.TransactionReceipt(n.ctx, txHash)
+				if err != nil {
+					select {
+					case errCh <- fmt.Errorf("failed to fetch transaction receipt: %v", err):
+					case <-n.ctx.Done():
+					}
+				}
+				return
+			}
+			time.Sleep(n.rateLimiter.WaitDuration())
+		}
+	}()
+}
+
+func (n *EthNode) fetchTransactionDetails(wg *sync.WaitGroup, ethTX **types.Transaction, txHash common.Hash,
+	errCh chan error) {
+	go func() {
+		defer wg.Done()
+		// fetch a transaction by its hash, but obey the rate limitations of the node
+		for {
+			if n.rateLimiter.Allow() {
+				var err error
+				*ethTX, _, err = n.client.TransactionByHash(n.ctx, txHash)
+				if err != nil {
+					select {
+					case errCh <- fmt.Errorf("failed to fetch transaction details: %v", err):
+					case <-n.ctx.Done():
+					}
+				}
+				return
+			}
+			time.Sleep(n.rateLimiter.WaitDuration())
+		}
+	}()
+}
+
+// getTransactionSender function to get the sender address
+func getTransactionSender(tx *types.Transaction) (string, error) {
 	from, err := types.Sender(types.LatestSignerForChainID(tx.ChainId()), tx)
 	if err != nil {
-		log.Fatalf("Failed to get sender: %v", err)
+		log.Errorf("failed to get sender: %v", err)
+		return "", err
 	}
-	return from.Hex()
+	return from.Hex(), nil
 }

@@ -11,25 +11,51 @@ import (
 	"ethereum-fetcher/internal/store/pg/models"
 
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/spf13/viper"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 type Store struct {
-	ctx context.Context
-	vp  *viper.Viper
-	db  *sql.DB
+	ctx     context.Context
+	db      *sql.DB
+	txCount int
 }
 
 const ErrDuplicateRowCode = "23505"
-const MaxAllResults = 1000
+
+func (st *Store) GetUser(username, password string) (*models.User, error) {
+	user, err := models.Users(
+		qm.Select(models.UserColumns.ID),
+		qm.Where(models.UserColumns.Username+"=?", username),
+		qm.And(models.UserColumns.Password+"= crypt(?, "+models.UserColumns.Password+")", password),
+	).One(st.ctx, boil.GetContextDB())
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return &models.User{ID: store.NonAuthenticatedUser}, nil
+		}
+		return nil, err
+	}
+
+	return user, nil
+}
 
 func (st *Store) GetAllTransactions() ([]*models.Transaction, error) {
-	// limit the result set to the MaxAllResults, but if there is a requirement to support "unlimited"
-	// it is better to have either a pagination or a PG CURSOR + FETCH + golang chan to stream the results back
+	// results are not limited, but it is better to have either a pagination or
+	// CURSOR + FETCH + golang chan to stream the results back
+	txList, err := models.Transactions().All(st.ctx, boil.GetContextDB())
+	if err != nil {
+		return nil, fmt.Errorf("cannot select all tx from database: %v", err)
+	}
+
+	return txList, nil
+}
+
+func (st *Store) GetMyTransactions(userID int) ([]*models.Transaction, error) {
 	txList, err := models.Transactions(
-		qm.Limit(MaxAllResults),
+		qm.InnerJoin(models.TableNames.UserTransactions+" ut on "+
+			"ut."+models.TransactionColumns.TXHash+" = "+
+			models.TableNames.Transactions+"."+models.TransactionColumns.TXHash),
+		qm.Where("ut.user_id = ?", userID),
 	).All(st.ctx, boil.GetContextDB())
 	if err != nil {
 		return nil, fmt.Errorf("cannot select all tx from database: %v", err)
@@ -70,7 +96,7 @@ func (st *Store) GetTransactionsByHashes(txHashes []string, userID int) ([]*mode
 		),
 	}
 
-	if userID > store.NonAuthenticatedUser {
+	if userID != store.NonAuthenticatedUser {
 		// load only the authenticated user for those transactions
 		queryMods = append(queryMods,
 			qm.Load(qm.Rels(models.TransactionRels.Users), qm.Where("user_id = ?", userID)),
@@ -85,12 +111,13 @@ func (st *Store) GetTransactionsByHashes(txHashes []string, userID int) ([]*mode
 	return txList, nil
 }
 
+// InsertTransactions inserts records in both transactions and user_transactions tables
 func (st *Store) InsertTransactions(txList []*models.Transaction, userID int) error {
 	for _, tx := range txList {
 		// upsert operation for each ethereum transaction
 
 		// first start dbTX, to ensure that both eth TX and user/TX are inserted
-		dbTx, err := boil.BeginTx(st.ctx, nil)
+		dbTx, err := st.BeginTx()
 		if err != nil {
 			return fmt.Errorf("cannot insert tx into the database for hash '%s': %v", tx.TXHash, err)
 		}
@@ -98,21 +125,22 @@ func (st *Store) InsertTransactions(txList []*models.Transaction, userID int) er
 		err = tx.Upsert(st.ctx, dbTx, true, []string{models.TransactionColumns.TXHash},
 			boil.Infer(), boil.Infer())
 		if err != nil {
-			_ = dbTx.Rollback()
+			_ = st.RollbackTx(dbTx)
 			return fmt.Errorf("cannot insert tx into the database for hash '%s': %v", tx.TXHash, err)
 		}
 
-		if userID > store.NonAuthenticatedUser {
+		if userID != store.NonAuthenticatedUser {
 			user := &models.User{
 				ID: userID,
 			}
 			err := tx.AddUsers(st.ctx, dbTx, false, user)
 			if err != nil {
-				_ = dbTx.Rollback()
+				_ = st.RollbackTx(dbTx)
 				return fmt.Errorf("cannot insert tx/user into the database for hash '%s': %v", tx.TXHash, err)
 			}
 		}
-		err = dbTx.Commit()
+
+		err = st.CommitTx(dbTx)
 		if err != nil {
 			return fmt.Errorf("cannot insert tx into the database for hash '%s': %v", tx.TXHash, err)
 		}
@@ -121,10 +149,11 @@ func (st *Store) InsertTransactions(txList []*models.Transaction, userID int) er
 	return nil
 }
 
+// InsertTransactionsUser inserts record in the join "user_transactions" table if needed
 func (st *Store) InsertTransactionsUser(txList []*models.Transaction, userID int) error {
 	for _, tx := range txList {
 		// add user/txs to the join table
-		if userID > store.NonAuthenticatedUser {
+		if userID != store.NonAuthenticatedUser {
 			user := &models.User{
 				ID: userID,
 			}
@@ -138,6 +167,41 @@ func (st *Store) InsertTransactionsUser(txList []*models.Transaction, userID int
 				}
 			}
 		}
+	}
+	return nil
+}
+
+func (st *Store) BeginTx() (*sql.Tx, error) {
+	if _, okTx := boil.GetContextDB().(boil.ContextBeginner); !okTx {
+		dbTx, okTx := boil.GetContextDB().(*sql.Tx)
+		if !okTx {
+			return nil, fmt.Errorf("cannot obtain currently started sql Tx")
+		}
+		st.txCount++
+		return dbTx, nil
+	}
+
+	dbTx, err := boil.BeginTx(st.ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	st.txCount++
+	return dbTx, nil
+}
+
+func (st *Store) CommitTx(dbTx *sql.Tx) error {
+	st.txCount--
+	if st.txCount <= 0 {
+		return dbTx.Commit()
+	}
+
+	return nil
+}
+
+func (st *Store) RollbackTx(dbTx *sql.Tx) error {
+	st.txCount--
+	if st.txCount <= 0 {
+		return dbTx.Rollback()
 	}
 	return nil
 }
