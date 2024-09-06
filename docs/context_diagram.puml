@@ -1,0 +1,17 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(user, "User", "[might be optional]")
+
+System_Boundary(serverBoundary, "REST API Server") {
+    System(server, "REST API Server", "Handles user requests for Ethereum transactions")
+}
+
+System_Ext(db, "PostgreSQL Database", "Stores Ethereum transaction data")
+System_Ext(ethNode, "Ethereum Node", "External Ethereum blockchain node")
+
+Rel(user, server, "Uses API to request transaction information")
+Rel(server, db, "Fetches and stores transaction data")
+Rel(server, ethNode, "Fetches transaction data if not in DB")
+
+@enduml

@@ -12,6 +12,9 @@ FROM gcr.io/distroless/base
 
 LABEL maintainer="Yuliyan Lishev <july81@gmail.com>"
 
+# make migrations files available at runtime
+COPY --from=builder /build/internal/store/pg/migrations /internal/store/pg/migrations
+
 COPY --from=builder /lime-server /lime-server
 
 EXPOSE $APP_PORT

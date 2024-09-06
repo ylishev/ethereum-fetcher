@@ -1,0 +1,858 @@
+<?xml version="1.0" encoding="us-ascii" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css"
+     height="780px" preserveAspectRatio="none" style="width:998px;height:780px;background:#FFFFFF;" version="1.1"
+     viewBox="0 0 1387 1085" width="998px" zoomAndPan="magnify">
+    <defs/>
+    <g><!--cluster server-->
+        <g id="cluster_server">
+            <rect fill="none" height="867.57" rx="2.5" ry="2.5"
+                  style="stroke:#444444;stroke-width:1.0;stroke-dasharray:7.0,7.0;" width="1374" x="7" y="211.97"/>
+            <text fill="#444444" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="128" x="630" y="249.4387">REST API Server
+            </text>
+            <text fill="#444444" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="53" x="667.5" y="264.4153">[System]
+            </text>
+        </g><!--cluster api-->
+        <g id="cluster_api">
+            <rect fill="#438DD5" height="250.42" rx="2.5" ry="2.5" style="stroke:#3C7FC0;stroke-width:1.0;" width="1326"
+                  x="31" y="290.97"/>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="65" x="661.5" y="304.5716">&#171;container&#187;
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="134" x="627" y="322.5716">Endpoint Router
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" font-weight="bold"
+                  lengthAdjust="spacing" textLength="52" x="668" y="337.5481">[Golang]
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing"
+                  textLength="5" x="691.5" y="353.6145">&#160;
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing"
+                  textLength="259" x="564.5" y="370.1028">Handles HTTP requests and routing
+            </text>
+        </g><!--cluster appService-->
+        <g id="cluster_appService">
+            <rect fill="#438DD5" height="452.15" rx="2.5" ry="2.5" style="stroke:#3C7FC0;stroke-width:1.0;" width="299"
+                  x="655" y="603.39"/>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="65" x="772" y="616.9916">&#171;container&#187;
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="96" x="756.5" y="634.9916">App Service
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" font-weight="bold"
+                  lengthAdjust="spacing" textLength="52" x="778.5" y="649.9681">[Golang]
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing"
+                  textLength="5" x="802" y="666.0345">&#160;
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing"
+                  textLength="283" x="663" y="682.5228">Processes transaction-related requests
+            </text>
+        </g><!--entity db-->
+        <g id="elem_db">
+            <rect fill="#438DD5" height="116.5742" rx="2.5" ry="2.5" style="stroke:#3C7FC0;stroke-width:0.5;"
+                  width="214" x="970" y="922.97"/>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="65" x="1044.5" y="944.5716">&#171;container&#187;
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="93" x="990.5" y="962.5716">PostgreSQL
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="5" x="1083.5" y="962.5716">&#160;
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="75" x="1088.5" y="962.5716">Database
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="72" x="1041" y="977.5481">[PostgreSQL]
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="1075"
+                  y="993.6145">&#160;
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="43" x="980"
+                  y="1010.1028">Stores
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="1023"
+                  y="1010.1028">&#160;
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="66" x="1027"
+                  y="1010.1028">Ethereum
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="1093"
+                  y="1010.1028">&#160;
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="77" x="1097"
+                  y="1010.1028">transaction
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="30" x="1062"
+                  y="1026.5911">data
+            </text>
+        </g><!--entity ethNode-->
+        <g id="elem_ethNode">
+            <rect fill="#B3B3B3" height="116.5742" rx="2.5" ry="2.5" style="stroke:#A6A6A6;stroke-width:0.5;"
+                  width="146" x="1219" y="922.97"/>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="118" x="1233" y="944.5716">&#171;external_container&#187;
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="79" x="1229" y="962.5716">Ethereum
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="5" x="1308" y="962.5716">&#160;
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="42" x="1313" y="962.5716">Node
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="55" x="1264.5" y="977.5481">[External]
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="1290"
+                  y="993.6145">&#160;
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52" x="1231"
+                  y="1010.1028">Fetches
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="1283"
+                  y="1010.1028">&#160;
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="66" x="1287"
+                  y="1010.1028">Ethereum
+            </text>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="84" x="1250"
+                  y="1026.5911">transactions
+            </text>
+        </g><!--entity authMiddleware-->
+        <g id="elem_authMiddleware">
+            <rect fill="#85BBF0" height="116.5742" rx="2.5" ry="2.5" style="stroke:#78A8D8;stroke-width:0.5;"
+                  width="191" x="47.5" y="399.4"/>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="76" x="105" y="421.0016">&#171;component&#187;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="40" x="73" y="439.0016">Auth
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="5" x="113" y="439.0016">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="95" x="118" y="439.0016">Middleware
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="48" x="119" y="453.9781">[Golang]
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="141"
+                  y="470.0445">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="62" x="57.5"
+                  y="486.5328">Validates
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="119.5"
+                  y="486.5328">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="25"
+                  x="123.5" y="486.5328">JWT
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="148.5"
+                  y="486.5328">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="46"
+                  x="152.5" y="486.5328">tokens
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="198.5"
+                  y="486.5328">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="26"
+                  x="202.5" y="486.5328">and
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="31" x="107"
+                  y="503.0211">auth
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="138"
+                  y="503.0211">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="37" x="142"
+                  y="503.0211">users
+            </text>
+        </g><!--entity authEndpoint-->
+        <g id="elem_authEndpoint">
+            <rect fill="#85BBF0" height="133.0625" rx="2.5" ry="2.5" style="stroke:#78A8D8;stroke-width:0.5;"
+                  width="204" x="273" y="391.15"/>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="76" x="337" y="412.7516">&#171;component&#187;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="104" x="283" y="430.7516">Authenticate
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="5" x="387" y="430.7516">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="75" x="392" y="430.7516">Endpoint
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="48" x="351" y="445.7281">[Golang]
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="373"
+                  y="461.7945">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="55"
+                  x="327.5" y="478.2828">Handles
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="382.5"
+                  y="478.2828">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="36"
+                  x="386.5" y="478.2828">POST
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="128" x="296"
+                  y="494.7711">/lime/authenticate
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="424"
+                  y="494.7711">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="26" x="428"
+                  y="494.7711">and
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="49" x="336"
+                  y="511.2594">creates
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="385"
+                  y="511.2594">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="25" x="389"
+                  y="511.2594">JWT
+            </text>
+        </g><!--entity transactionHashEndpoint-->
+        <g id="elem_transactionHashEndpoint">
+            <rect fill="#85BBF0" height="135.418" rx="2.5" ry="2.5" style="stroke:#78A8D8;stroke-width:0.5;" width="217"
+                  x="511.5" y="389.97"/>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="76" x="582" y="411.5716">&#171;component&#187;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="97" x="539.5" y="429.5716">Transaction
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="5" x="636.5" y="429.5716">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="59" x="641.5" y="429.5716">Hashes
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="75" x="582.5" y="448.4153">Endpoint
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="48" x="596" y="463.3919">[Golang]
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="618"
+                  y="479.4583">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="55" x="577"
+                  y="495.9466">Handles
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="632"
+                  y="495.9466">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="27" x="636"
+                  y="495.9466">GET
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="197"
+                  x="521.5" y="512.4348">/lime/eth?transactionHashes
+            </text>
+        </g><!--entity rlpHexEndpoint-->
+        <g id="elem_rlpHexEndpoint">
+            <rect fill="#85BBF0" height="116.5742" rx="2.5" ry="2.5" style="stroke:#78A8D8;stroke-width:0.5;"
+                  width="165" x="763.5" y="399.4"/>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="76" x="808" y="421.0016">&#171;component&#187;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="30" x="773.5" y="439.0016">RLP
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="5" x="803.5" y="439.0016">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="30" x="808.5" y="439.0016">Hex
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="5" x="838.5" y="439.0016">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="75" x="843.5" y="439.0016">Endpoint
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="48" x="822" y="453.9781">[Golang]
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="844"
+                  y="470.0445">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="55" x="803"
+                  y="486.5328">Handles
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="858"
+                  y="486.5328">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="27" x="862"
+                  y="486.5328">GET
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="121"
+                  x="785.5" y="503.0211">/lime/eth/:rlphex
+            </text>
+        </g><!--entity allTransactionsEndpoint-->
+        <g id="elem_allTransactionsEndpoint">
+            <rect fill="#85BBF0" height="118.9297" rx="2.5" ry="2.5" style="stroke:#78A8D8;stroke-width:0.5;"
+                  width="169" x="963.5" y="398.22"/>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="76" x="1010" y="419.8216">&#171;component&#187;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="22" x="981.5" y="437.8216">All
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="5" x="1003.5" y="437.8216">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="106" x="1008.5" y="437.8216">Transactions
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="75" x="1010.5" y="456.6653">Endpoint
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="48" x="1024" y="471.6419">[Golang]
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="1046"
+                  y="487.7083">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="55"
+                  x="973.5" y="504.1966">Handles
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4"
+                  x="1028.5" y="504.1966">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="27"
+                  x="1032.5" y="504.1966">GET
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4"
+                  x="1059.5" y="504.1966">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59"
+                  x="1063.5" y="504.1966">/lime/all
+            </text>
+        </g><!--entity userTransactionsEndpoint-->
+        <g id="elem_userTransactionsEndpoint">
+            <rect fill="#85BBF0" height="118.9297" rx="2.5" ry="2.5" style="stroke:#78A8D8;stroke-width:0.5;"
+                  width="173" x="1167.5" y="398.22"/>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="76" x="1216" y="419.8216">&#171;component&#187;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="37" x="1180" y="437.8216">User
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="5" x="1217" y="437.8216">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="106" x="1222" y="437.8216">Transactions
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="75" x="1216.5" y="456.6653">Endpoint
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="48" x="1230" y="471.6419">[Golang]
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="1252"
+                  y="487.7083">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="55"
+                  x="1177.5" y="504.1966">Handles
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4"
+                  x="1232.5" y="504.1966">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="27"
+                  x="1236.5" y="504.1966">GET
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4"
+                  x="1263.5" y="504.1966">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="63"
+                  x="1267.5" y="504.1966">/lime/my
+            </text>
+        </g><!--entity transactionFetcher-->
+        <g id="elem_transactionFetcher">
+            <rect fill="#85BBF0" height="116.5742" rx="2.5" ry="2.5" style="stroke:#78A8D8;stroke-width:0.5;"
+                  width="219" x="718.5" y="702.39"/>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="76" x="790" y="723.9916">&#171;component&#187;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="97" x="747" y="741.9916">Transaction
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="5" x="844" y="741.9916">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="60" x="849" y="741.9916">Fetcher
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="48" x="804" y="756.9681">[Golang]
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="826"
+                  y="773.0345">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52"
+                  x="728.5" y="789.5228">Fetches
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="780.5"
+                  y="789.5228">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="84"
+                  x="784.5" y="789.5228">transactions
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="868.5"
+                  y="789.5228">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="33"
+                  x="872.5" y="789.5228">from
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="905.5"
+                  y="789.5228">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="18"
+                  x="909.5" y="789.5228">DB
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="15" x="766"
+                  y="806.0111">or
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="781"
+                  y="806.0111">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="66" x="785"
+                  y="806.0111">Ethereum
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="851"
+                  y="806.0111">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="35" x="855"
+                  y="806.0111">node
+            </text>
+        </g><!--entity transactionStorage-->
+        <g id="elem_transactionStorage">
+            <rect fill="#85BBF0" height="116.5742" rx="2.5" ry="2.5" style="stroke:#78A8D8;stroke-width:0.5;"
+                  width="209" x="718.5" y="922.97"/>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="76" x="785" y="944.5716">&#171;component&#187;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="97" x="741.5" y="962.5716">Transaction
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="5" x="838.5" y="962.5716">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="61" x="843.5" y="962.5716">Storage
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="48" x="799" y="977.5481">[Golang]
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="821"
+                  y="993.6145">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="43"
+                  x="728.5" y="1010.1028">Stores
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="771.5"
+                  y="1010.1028">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="77"
+                  x="775.5" y="1010.1028">transaction
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="852.5"
+                  y="1010.1028">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="30"
+                  x="856.5" y="1010.1028">data
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="886.5"
+                  y="1010.1028">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="27"
+                  x="890.5" y="1010.1028">into
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="22" x="779"
+                  y="1026.5911">the
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="801"
+                  y="1026.5911">&#160;
+            </text>
+            <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="62" x="805"
+                  y="1026.5911">database
+            </text>
+        </g><!--entity user-->
+        <g id="elem_user">
+            <rect fill="#08427B" height="100.9766" rx="2.5" ry="2.5" style="stroke:#073B6F;stroke-width:0.5;" width="72"
+                  x="810" y="7"/>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="52" x="820" y="28.6016">&#171;person&#187;
+            </text>
+            <image height="48" width="48" x="822"
+                   xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAACMElEQVR4Xu2YvUrFQBCFb+kj+Ai+gq3Y2PgA+gCCtZ2V2AhqaSNiqY1gYWMjaCvXykoEKy21sLCNfELgMscksz8mWfDAB3Kuye7sTmYnmcwtbU9KRozSECOVla3T6uTqvrqZPlcPT68/XNw+VtvH19XC+sGe/f9UxIhl8/Cy+vj8qrpEYIsbR1N7fSxihDK/urvMKoeKHbH3ikGMEJi8Z9WbtH92lxyEGCHErLwVqWfvG4IYXkiBXGIn7f29iOGBAe0kUkTVsmN4EcMD255bdgwvYnigFOYW54cdx4MYHlIqT5Niy6oYHuzgORRbUsXwYAfPoV4DeHl7t+MnK/Y8EMMDzVlu9foQ5y6jFAU7hhcxvOSsRLH5D2J4KbqVqMlxoK3tnEevPogRAiuXUpFiD69ZxIghZidSV75GjFiYkGc3KMEpOW8RIxXed0kNJsrOAO0ypTfnxGvEKA0xSkMMD3zfIedJFQ4hCPlUwrX1daQWbURseonRBhNue1D5rc53JkVQwN9c21Wt+D20JxLjN7hpztahSwTi3RExLDlbhhCxm55PkWLMkrvrDBW73rUTYtSQu/aGQ4h0snNzBdD1wPWptrZDDBjL6tfiebBzbA2AUjg2NT3QYkBbrR9KTS/9YoC9eAxqeu0UI/eH21yiu7VzLSqApnIqxn8Af6TiA3A/A9Bn5+lV0xcMMWDoJs6qrakTo4a6OwZxqLa97YkxC1HzMkMzNQRtE3cFUAJilMY3OGTNL0NDLqIAAAAASUVORK5CYII="
+                   y="31.1328"/>
+            <text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing"
+                  textLength="37" x="827.5" y="94.6016">User
+            </text>
+        </g><!--link user to authEndpoint-->
+        <g id="link_user_authEndpoint">
+            <path d="M809.8,61.38 C724.99,68.88 516.89,91.66 467,137.97 C396.73,203.21 379.3738,310.4212 375.5238,382.9912 "
+                  fill="none" id="user-to-authEndpoint" style="stroke:#666666;stroke-width:1.0;"/>
+            <polygon fill="#666666" points="375.1,390.98,378.5196,383.1502,372.528,382.8323,375.1,390.98"
+                     style="stroke:#666666;stroke-width:1.0;"/>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="32" x="526.5" y="150.5716">POST
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="118" x="468" y="164.7044">/lime/authenticate
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="586" y="164.7044">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="27" x="590" y="164.7044">with
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="128" x="478.5" y="178.8372">username/password
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="39" x="500" y="192.97">[public
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="4" x="539" y="192.97">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="42" x="543" y="192.97">access]
+            </text>
+        </g><!--link user to transactionHashEndpoint-->
+        <g id="link_user_transactionHashEndpoint">
+            <path d="M809.56,62.49 C765.07,69.48 691.17,88.29 654,137.97 C599.75,210.49 599.8401,311.6708 607.7501,381.5408 "
+                  fill="none" id="user-to-transactionHashEndpoint" style="stroke:#666666;stroke-width:1.0;"/>
+            <polygon fill="#666666" points="608.65,389.49,610.731,381.2033,604.7691,381.8783,608.65,389.49"
+                     style="stroke:#666666;stroke-width:1.0;"/>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="24" x="734" y="157.5716">GET
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="182" x="655" y="171.7044">/lime/eth?transactionHashes
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="50" x="706" y="185.8372">[optional
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="4" x="756" y="185.8372">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="26" x="760" y="185.8372">JWT]
+            </text>
+        </g><!--link user to rlpHexEndpoint-->
+        <g id="link_user_rlpHexEndpoint">
+            <path d="M846,108.11 C846,182.02 846,312.69 846,391 " fill="none" id="user-to-rlpHexEndpoint"
+                  style="stroke:#666666;stroke-width:1.0;"/>
+            <polygon fill="#666666" points="846,399,849,391,843,391,846,399" style="stroke:#666666;stroke-width:1.0;"/>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="24" x="847" y="164.5716">GET
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="871" y="164.5716">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="110" x="875" y="164.5716">/lime/eth/:rlphex
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="50" x="876" y="178.7044">[optional
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="4" x="926" y="178.7044">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="26" x="930" y="178.7044">JWT]
+            </text>
+        </g><!--link user to allTransactionsEndpoint-->
+        <g id="link_user_allTransactionsEndpoint">
+            <path d="M882.32,67.95 C916.72,78.9 967.03,100.43 994,137.97 C1049.33,215.01 1055.4238,321.235 1052.9838,389.965 "
+                  fill="none" id="user-to-allTransactionsEndpoint" style="stroke:#666666;stroke-width:1.0;"/>
+            <polygon fill="#666666" points="1052.7,397.96,1055.9819,390.0715,1049.9857,389.8586,1052.7,397.96"
+                     style="stroke:#666666;stroke-width:1.0;"/>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="24" x="1024.41" y="164.5716">GET
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1048.41" y="164.5716">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="56" x="1052.41" y="164.5716">/lime/all
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="39" x="1023.91" y="178.7044">[public
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="4" x="1062.91" y="178.7044">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="42" x="1066.91" y="178.7044">access]
+            </text>
+        </g><!--link user to userTransactionsEndpoint-->
+        <g id="link_user_userTransactionsEndpoint">
+            <path d="M882.04,59.94 C938.6,64.04 1048.87,79.53 1118,137.97 C1197.02,204.78 1229.7316,317.8254 1243.6816,389.9854 "
+                  fill="none" id="user-to-userTransactionsEndpoint" style="stroke:#666666;stroke-width:1.0;"/>
+            <polygon fill="#666666" points="1245.2,397.84,1246.627,389.416,1240.7361,390.5548,1245.2,397.84"
+                     style="stroke:#666666;stroke-width:1.0;"/>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="24" x="1168.16" y="164.5716">GET
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1192.16" y="164.5716">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="60" x="1196.16" y="164.5716">/lime/my
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="52" x="1171.16" y="178.7044">[requires
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="4" x="1223.16" y="178.7044">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacing"
+                  textLength="26" x="1227.16" y="178.7044">JWT]
+            </text>
+        </g><!--link authEndpoint to transactionFetcher-->
+        <g id="link_authEndpoint_transactionFetcher">
+            <path d="M461.43,524.59 C472.39,532.94 483.46,541.37 494,549.39 C516.21,566.3 520.93,571.69 544,587.39 C603.36,627.79 665.2535,665.5856 720.2635,697.9256 "
+                  fill="none" id="authEndpoint-to-transactionFetcher" style="stroke:#666666;stroke-width:1.0;"/>
+            <polygon fill="#666666" points="727.16,701.98,721.7839,695.3394,718.7431,700.5118,727.16,701.98"
+                     style="stroke:#666666;stroke-width:1.0;"/>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="57" x="545" y="569.9916">Validates
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="602" y="569.9916">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="68" x="606" y="569.9916">credentials
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="23" x="559.5" y="584.1244">and
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="582.5" y="584.1244">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="45" x="586.5" y="584.1244">returns
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="631.5" y="584.1244">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="24" x="635.5" y="584.1244">JWT
+            </text>
+        </g><!--link transactionHashEndpoint to transactionFetcher-->
+        <g id="link_transactionHashEndpoint_transactionFetcher">
+            <path d="M660.91,525.76 C673.47,545.78 687.54,567.65 701,587.39 C727.59,626.38 754.2371,662.6997 779.1971,695.8397 "
+                  fill="none" id="transactionHashEndpoint-to-transactionFetcher"
+                  style="stroke:#666666;stroke-width:1.0;"/>
+            <polygon fill="#666666" points="784.01,702.23,781.5934,694.0349,776.8007,697.6446,784.01,702.23"
+                     style="stroke:#666666;stroke-width:1.0;"/>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="47" x="702" y="576.9916">Fetches
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="749" y="576.9916">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="77" x="753" y="576.9916">transactions
+            </text>
+        </g><!--link rlpHexEndpoint to transactionFetcher-->
+        <g id="link_rlpHexEndpoint_transactionFetcher">
+            <path d="M842.55,516.36 C839.36,569.71 835.1174,640.5943 831.9274,693.9543 " fill="none"
+                  id="rlpHexEndpoint-to-transactionFetcher" style="stroke:#666666;stroke-width:1.0;"/>
+            <polygon fill="#666666" points="831.45,701.94,834.9221,694.1333,828.9328,693.7752,831.45,701.94"
+                     style="stroke:#666666;stroke-width:1.0;"/>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="47" x="840.66" y="576.9916">Fetches
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="887.66" y="576.9916">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="77" x="891.66" y="576.9916">transactions
+            </text>
+        </g><!--link allTransactionsEndpoint to transactionFetcher-->
+        <g id="link_allTransactionsEndpoint_transactionFetcher">
+            <path d="M1019.41,517.63 C1007.62,540.11 993.17,565.56 978,587.39 C949.83,627.94 919.0057,663.9211 889.1957,696.2211 "
+                  fill="none" id="allTransactionsEndpoint-to-transactionFetcher"
+                  style="stroke:#666666;stroke-width:1.0;"/>
+            <polygon fill="#666666" points="883.77,702.1,891.4003,698.2557,886.9911,694.1864,883.77,702.1"
+                     style="stroke:#666666;stroke-width:1.0;"/>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="47" x="996.39" y="576.9916">Fetches
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1043.39" y="576.9916">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="15" x="1047.39" y="576.9916">all
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1062.39" y="576.9916">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="77" x="1066.39" y="576.9916">transactions
+            </text>
+        </g><!--link userTransactionsEndpoint to transactionFetcher-->
+        <g id="link_userTransactionsEndpoint_transactionFetcher">
+            <path d="M1215.34,517.58 C1197.91,541.21 1175.88,567.5 1152,587.39 C1087.64,641.02 1011.1925,681.6987 944.9725,711.8087 "
+                  fill="none" id="userTransactionsEndpoint-to-transactionFetcher"
+                  style="stroke:#666666;stroke-width:1.0;"/>
+            <polygon fill="#666666" points="937.69,715.12,946.2143,714.5396,943.7308,709.0777,937.69,715.12"
+                     style="stroke:#666666;stroke-width:1.0;"/>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="47" x="1182.08" y="569.9916">Fetches
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1229.08" y="569.9916">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="82" x="1233.08" y="569.9916">user-specific
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="77" x="1210.08" y="584.1244">transactions
+            </text>
+        </g><!--link transactionFetcher to transactionStorage-->
+        <g id="link_transactionFetcher_transactionStorage">
+            <path d="M718.44,794.94 C693.73,807.78 670.54,825.28 656,848.97 C631.78,888.41 664.2547,917.2332 710.9847,939.9432 "
+                  fill="none" id="transactionFetcher-to-transactionStorage" style="stroke:#666666;stroke-width:1.0;"/>
+            <polygon fill="#666666" points="718.18,943.44,712.296,937.245,709.6734,942.6414,718.18,943.44"
+                     style="stroke:#666666;stroke-width:1.0;"/>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="39" x="657" y="868.5716">Stores
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="696" y="868.5716">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="70" x="700" y="868.5716">transaction
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="770" y="868.5716">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="27" x="774" y="868.5716">data
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="25" x="705.5" y="882.7044">into
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="730.5" y="882.7044">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="18" x="734.5" y="882.7044">DB
+            </text>
+        </g><!--link transactionFetcher to db-->
+        <g id="link_transactionFetcher_db">
+            <path d="M893.75,819.39 C930.06,851.27 969.0082,885.4519 1005.3082,917.3219 " fill="none"
+                  id="transactionFetcher-to-db" style="stroke:#666666;stroke-width:1.0;"/>
+            <polygon fill="#666666" points="1011.32,922.6,1007.2875,915.0675,1003.3289,919.5763,1011.32,922.6"
+                     style="stroke:#666666;stroke-width:1.0;"/>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="48" x="975.8" y="868.5716">Queries
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1023.8" y="868.5716">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="70" x="1027.8" y="868.5716">transaction
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="27" x="995.3" y="882.7044">data
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1022.3" y="882.7044">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="30" x="1026.3" y="882.7044">from
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1056.3" y="882.7044">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="18" x="1060.3" y="882.7044">DB
+            </text>
+        </g><!--link transactionFetcher to ethNode-->
+        <g id="link_transactionFetcher_ethNode">
+            <path d="M937.71,787.42 C990.41,801.92 1053.57,822.48 1107,848.97 C1147.4,868.99 1182.2968,892.5345 1215.5768,917.7845 "
+                  fill="none" id="transactionFetcher-to-ethNode" style="stroke:#666666;stroke-width:1.0;"/>
+            <polygon fill="#666666" points="1221.95,922.62,1217.3901,915.3946,1213.7635,920.1745,1221.95,922.62"
+                     style="stroke:#666666;stroke-width:1.0;"/>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="48" x="1190.6" y="861.5716">Queries
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1238.6" y="861.5716">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="70" x="1242.6" y="861.5716">transaction
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="27" x="1189.6" y="875.7044">data
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1216.6" y="875.7044">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="30" x="1220.6" y="875.7044">from
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1250.6" y="875.7044">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="59" x="1254.6" y="875.7044">Ethereum
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="31" x="1177.6" y="889.8372">node
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1208.6" y="889.8372">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="9" x="1212.6" y="889.8372">if
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1221.6" y="889.8372">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="21" x="1225.6" y="889.8372">not
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1246.6" y="889.8372">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="37" x="1250.6" y="889.8372">found
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1287.6" y="889.8372">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="12" x="1291.6" y="889.8372">in
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="4" x="1303.6" y="889.8372">&#160;
+            </text>
+            <text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing"
+                  textLength="18" x="1307.6" y="889.8372">DB
+            </text>
+        </g><!--SRC=[dLPDSzem4BtpAxPSGcTAVEafbqu-Q6WdQHqWxJ4Zx0KqbILNaalIJlzxLyO6oyXE4owWjVQzrTFkCs-uJ4IHOg45RApDpLaKQROzNNExAPQ5GPqeQL7QqqHbKIwOj4KcniQcWY-Zo_VZs8NkRs-YZ1cBca8FbohBbNGvEUqT36BKHicH0ti7mtlw6huT3EPFj3zxk525J9b-6b7uLxbXDfalu3p-1FCoCdmBVmP0dqigX769UiHoJlicCiqLbnPcgY3c8OMk5LMpTh-cJAO23KmNYnWq_YpGM0CK14sxEMsgONVGLSKZLjZDBKyfTyiq4j0v1U0GyLc-CS5JPeddy_S5MFK3vOx4mO0xiA6ZXbdgyYiE2lE4eA2EXyyJVoLn8i4pZ5Wpov4c6kjQWgnMCsbOOhcIKsQQ1ImEJy0z8f3-CgudTHLeDnzQm1W-j1Rv51yRhBER62Zo4gheZ50s-1XMLOZ6GKnJO26W-UY_AGaoIEMkjeFBzVVhoBAdYklluAZXSpSCF2axCi-XMlc8iLO96aEOZGiPQnJK5Ub-23eQlv7o4MsoAKUnsHTLrAVS1Jr20okjChYw0ALXGYsgiSX0gXIVQygvLPgjiSLRHNrU5_HfWUQG0QciW3ZBrP8Pz1KzQKXAqzFGz31BX1M-A7VdmFoDjPOdpxY8imUVutMUeZJ_ZPwnd1mrIxfqlQ2CNMkStzt0LIs55swekB-ajfmLnHxwOV9eHpI5N-WodG7NUMxjyEWnQib4ipD2uAvsAdk6edefjFomo-Isl79LoUXHpepPAfqwjhnO2fu0Izm04Fe1kjlqdlCmsg9ojsQYijG3wf6NXLsg3wBRhNpxwJrTZmzvla9hD_zSxryF9OYlUz023kr8hvVKNGKJrOiKRQ6bQHoiK-iWSiWxAg2sl2_DxzIs5uYoGc3T6lUYkRInoJ7XAxgx5cvRhdrwq0vxtUxgubZzFLpf1NS5QXxAhuow9_ymxFqWdiy3Nz6tXPNxQqT5xYZ-0G00]-->
+    </g>
+</svg>

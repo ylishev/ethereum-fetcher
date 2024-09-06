@@ -1,0 +1,201 @@
+openapi: 3.0.0
+info:
+  title: Ethereum Fetcher REST API
+  version: 1.0.0
+  description: API for fetching Ethereum transaction data
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /lime/eth:
+    get:
+      summary: Get Ethereum transactions by transaction hashes
+      description: Fetch Ethereum transactions using a list of transaction hashes.
+      parameters:
+        - name: transactionHashes
+          in: query
+          description: List of Ethereum transaction hashes
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              pattern: '^0x[a-fA-F0-9]{64}$'
+              description: A valid Ethereum transaction hash
+      security:
+        - optionalAuthToken: []
+      responses:
+        '200':
+          description: A list of Ethereum transactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseGetTransactionsByHashes'
+        '400':
+          description: Invalid input
+
+  /lime/eth/{rlphex}:
+    get:
+      summary: Get Ethereum transaction by RLP Hex
+      description: Fetch an Ethereum transaction using its RLP-encoded hexadecimal string.
+      parameters:
+        - name: rlphex
+          in: path
+          description: RLP-encoded hexadecimal string representing a transaction
+          required: true
+          schema:
+            type: string
+            pattern: '^0x[a-fA-F0-9]+$'
+      security:
+        - optionalAuthToken: []
+      responses:
+        '200':
+          description: A single Ethereum transaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Invalid RLP hex string
+
+  /lime/my:
+    get:
+      summary: Get personal Ethereum transactions
+      description: Fetch transactions related to the authenticated user.
+      security:
+        - requiredAuthToken: []
+      responses:
+        '200':
+          description: A list of personal Ethereum transactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseGetAllTransactions'
+        '401':
+          description: Unauthorized
+
+  /lime/all:
+    get:
+      summary: Get all Ethereum transactions
+      description: Fetch all Ethereum transactions.
+      responses:
+        '200':
+          description: A list of all Ethereum transactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseGetAllTransactions'
+
+  /lime/authenticate:
+    post:
+      summary: Authenticate user
+      description: Authenticate a user with their username and password, and retrieve a token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/requestAuthenticate'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseAuthenticate'
+        '400':
+          description: Invalid username or password
+
+components:
+  securitySchemes:
+    optionalAuthToken:
+      type: apiKey
+      in: header
+      name: AUTH_TOKEN
+      description: Optional JWT token for additional authorization
+
+    requiredAuthToken:
+      type: apiKey
+      in: header
+      name: AUTH_TOKEN
+      description: Required JWT token for authorization
+
+  schemas:
+    requestAuthenticate:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+
+    responseAuthenticate:
+      type: object
+      properties:
+        token:
+          type: string
+
+    requestGetTransactionsByHashes:
+      type: object
+      properties:
+        transactionHashes:
+          type: array
+          items:
+            type: string
+            pattern: '^0x[a-fA-F0-9]{64}$'
+      required:
+        - transactionHashes
+
+    requestGetTransactionsByRLP:
+      type: object
+      properties:
+        rlphex:
+          type: string
+          pattern: '^0x[a-fA-F0-9]+$'
+      required:
+        - rlphex
+
+    Transaction:
+      type: object
+      properties:
+        transactionHash:
+          type: string
+        transactionStatus:
+          type: integer
+        blockHash:
+          type: string
+        blockNumber:
+          type: integer
+        from:
+          type: string
+        to:
+          type: string
+          nullable: true
+        contractAddress:
+          type: string
+          nullable: true
+        logsCount:
+          type: integer
+        input:
+          type: string
+        value:
+          type: string
+
+    responseGetTransactionsByHashes:
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+
+    responseGetAllTransactions:
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'

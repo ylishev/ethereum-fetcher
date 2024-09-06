@@ -22,7 +22,7 @@ func NewRateLimiter(ctx context.Context, maxCredits int, refillInterval time.Dur
 	rl := &RateLimiter{
 		ctx:     ctx,
 		credits: make(chan struct{}, maxCredits),
-		wait:    time.Second / time.Duration(maxCredits),
+		wait:    refillInterval / time.Duration(maxCredits),
 	}
 
 	// prefill the channel with maxCredits to allow for immediate consumption
@@ -32,7 +32,7 @@ func NewRateLimiter(ctx context.Context, maxCredits int, refillInterval time.Dur
 
 	// refill the credits periodically
 	go func() {
-		ticker := time.NewTicker(refillInterval)
+		ticker := time.NewTicker(rl.wait)
 		defer ticker.Stop()
 		for range ticker.C {
 			select {

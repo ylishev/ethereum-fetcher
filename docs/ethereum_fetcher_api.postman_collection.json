@@ -1,0 +1,214 @@
+{
+	"info": {
+		"_postman_id": "eb670904-fa2c-4792-8063-454f3ab103ec",
+		"name": "Ethereum Fetcher",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1468837"
+	},
+	"item": [
+		{
+			"name": "/lime/eth?transactionHashes",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "AUTH_TOKEN",
+						"value": "{{limeToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/lime/eth?transactionHashes=0xfc2b3b6db38a51db3b9cb95de29b719de8deb99630626e4b4b99df056ffb7f2e&transactionHashes=0x48603f7adff7fbfc2a10b22a6710331ee68f2e4d1cd73a584d57c8821df79356&transactionHashes=0xcbc920e7bb89cbcb540a469a16226bf1057825283ab8eac3f45d00811eef8a64&transactionHashes=0x6d604ffc644a282fca8cb8e778e1e3f8245d8bd1d49326e3016a3c878ba0cbbd",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"lime",
+						"eth"
+					],
+					"query": [
+						{
+							"key": "transactionHashes",
+							"value": "0xfc2b3b6db38a51db3b9cb95de29b719de8deb99630626e4b4b99df056ffb7f2e"
+						},
+						{
+							"key": "transactionHashes",
+							"value": "0x48603f7adff7fbfc2a10b22a6710331ee68f2e4d1cd73a584d57c8821df79356"
+						},
+						{
+							"key": "transactionHashes",
+							"value": "0xcbc920e7bb89cbcb540a469a16226bf1057825283ab8eac3f45d00811eef8a64"
+						},
+						{
+							"key": "transactionHashes",
+							"value": "0x6d604ffc644a282fca8cb8e778e1e3f8245d8bd1d49326e3016a3c878ba0cbbd"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/lime/eth/{rlphex}",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "AUTH_TOKEN",
+						"value": "{{limeToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/lime/eth/f90110b842307866633262336236646233386135316462336239636239356465323962373139646538646562393936333036323665346234623939646630353666666237663265b842307834383630336637616466663766626663326131306232326136373130333331656536386632653464316364373361353834643537633838323164663739333536b842307863626339323065376262383963626362353430613436396131363232366266313035373832353238336162386561633366343564303038313165656638613634b842307836643630346666633634346132383266636138636238653737386531653366383234356438626431643439333236653330313661336338373862613063626264",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"lime",
+						"eth",
+						"f90110b842307866633262336236646233386135316462336239636239356465323962373139646538646562393936333036323665346234623939646630353666666237663265b842307834383630336637616466663766626663326131306232326136373130333331656536386632653464316364373361353834643537633838323164663739333536b842307863626339323065376262383963626362353430613436396131363232366266313035373832353238336162386561633366343564303038313165656638613634b842307836643630346666633634346132383266636138636238653737386531653366383234356438626431643439333236653330313661336338373862613063626264"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/lime/my",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "AUTH_TOKEN",
+						"value": "{{limeToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/lime/my",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"lime",
+						"my"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/lime/all",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/lime/all",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"lime",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/lime/authenticate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Your test name\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.token).length.least(100);",
+							"    pm.collectionVariables.set(\"limeToken\", jsonData.token);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjUyOTQxNjYsImlhdCI6MTcyNTI3OTc2NiwiaXNzIjoiaHR0cHM6Ly9saW1lY2hhaW4udGVjaC9hdXRoIiwic3ViIjo0fQ.e2vXdwKFZfgZq0Pc_p6Ytera2Uuf7DW5-l9n-V8DPpo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\": \"bob\", \"password\": \"bob\"}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/lime/authenticate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"lime",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "limeToken",
+			"value": ""
+		}
+	]
+}

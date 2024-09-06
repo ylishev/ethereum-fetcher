@@ -1,0 +1,21 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User")
+
+System_Boundary(server, "REST API Server") {
+    Container(api, "Endpoint Router", "Golang", "Handles HTTP requests and routing")
+    Container(AppService, "App Service", "Golang", "Processes transaction-related requests")
+    Container(authService, "Authentication", "Golang", "Handles user authentication and JWT token management")
+    Container(db, "PostgreSQL Database", "PostgreSQL", "Stores transaction data")
+    Container_Ext(ethNode, "Ethereum Node", "External", "Fetches Ethereum transactions")
+}
+
+Rel(user, api, "Sends HTTP requests")
+Rel(api, authService, "Sends authentication requests")
+Rel(api, AppService, "Forwards transaction requests")
+Rel(AppService, db, "Queries and stores transaction data")
+Rel(AppService, ethNode, "Fetches transaction data if not in DB")
+Rel(authService, db, "Queries and stores user data")
+
+@enduml
