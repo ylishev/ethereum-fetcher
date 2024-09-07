@@ -3,6 +3,7 @@
 package mocks
 
 import (
+	context "context"
 	models "ethereum-fetcher/internal/store/pg/models"
 
 	mock "github.com/stretchr/testify/mock"
@@ -73,9 +74,9 @@ func (_m *ServiceProvider) GetMyTransactions(userID int) ([]*models.Transaction,
 	return r0, r1
 }
 
-// GetTransactionsByHashes provides a mock function with given fields: txHashes, userID
-func (_m *ServiceProvider) GetTransactionsByHashes(txHashes []string, userID int) ([]*models.Transaction, error) {
-	ret := _m.Called(txHashes, userID)
+// GetTransactionsByHashes provides a mock function with given fields: requestCtx, txHashes, userID
+func (_m *ServiceProvider) GetTransactionsByHashes(requestCtx context.Context, txHashes []string, userID int) ([]*models.Transaction, error) {
+	ret := _m.Called(requestCtx, txHashes, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTransactionsByHashes")
@@ -83,19 +84,19 @@ func (_m *ServiceProvider) GetTransactionsByHashes(txHashes []string, userID int
 
 	var r0 []*models.Transaction
 	var r1 error
-	if rf, ok := ret.Get(0).(func([]string, int) ([]*models.Transaction, error)); ok {
-		return rf(txHashes, userID)
+	if rf, ok := ret.Get(0).(func(context.Context, []string, int) ([]*models.Transaction, error)); ok {
+		return rf(requestCtx, txHashes, userID)
 	}
-	if rf, ok := ret.Get(0).(func([]string, int) []*models.Transaction); ok {
-		r0 = rf(txHashes, userID)
+	if rf, ok := ret.Get(0).(func(context.Context, []string, int) []*models.Transaction); ok {
+		r0 = rf(requestCtx, txHashes, userID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*models.Transaction)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func([]string, int) error); ok {
-		r1 = rf(txHashes, userID)
+	if rf, ok := ret.Get(1).(func(context.Context, []string, int) error); ok {
+		r1 = rf(requestCtx, txHashes, userID)
 	} else {
 		r1 = ret.Error(1)
 	}

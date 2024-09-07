@@ -1,8 +1,13 @@
 package network
 
-import "ethereum-fetcher/internal/store/pg/models"
+import (
+	"context"
+
+	"ethereum-fetcher/internal/store/pg/models"
+)
 
 //go:generate mockery --name EthereumProvider
 type EthereumProvider interface {
-	GetTransactionByHash(hash string) (*models.Transaction, error)
+	GetTransactionByHash(task TxTask) (*models.Transaction, error)
+	ScheduleTask(muxCtx context.Context, txHash string) (<-chan TxResult, error)
 }

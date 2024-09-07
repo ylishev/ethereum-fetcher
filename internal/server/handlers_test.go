@@ -113,7 +113,8 @@ func (s *EndpointTestSuite) TestGetTransactionsByRLPEndpoints() {
 			if tt.exp.txHashes != nil {
 				txList = mockSetupTransactions(tt.exp.txHashes)
 			}
-			app.On("GetTransactionsByHashes", mock.AnythingOfType("[]string"), mock.AnythingOfType("int")).
+			app.On("GetTransactionsByHashes", mock.AnythingOfType("*context.valueCtx"),
+				mock.AnythingOfType("[]string"), mock.AnythingOfType("int")).
 				Return(txList, tt.exp.err).Maybe()
 
 			ep := NewEndPoint(s.ctx, s.vp, app)

@@ -20,24 +20,23 @@ import (
 	boilTypes "github.com/volatiletech/sqlboiler/v4/types"
 )
 
-type Transaction struct {
-	TxHash          string      `json:"transactionHash"`
-	TxStatus        int         `json:"transactionStatus"`
-	BlockHash       string      `json:"blockHash"`
-	BlockNumber     uint64      `json:"blockNumber"`
-	From            string      `json:"from"`
-	To              null.String `json:"to"`
-	ContractAddress null.String `json:"contractAddress"`
-	LogsCount       int         `json:"logsCount"`
-	Input           string      `json:"input"`
-	Value           string      `json:"value"`
+type TxTask struct {
+	TxHash  string
+	Ctx     context.Context
+	ResChan chan TxResult
+}
+
+// TxResult is used to transport fetch results over channels
+type TxResult struct {
+	Tx  *models.Transaction
+	Err error
 }
 
 // GetTransactionByHash fetch the transaction from the node by provided hash
-func (n *EthNode) GetTransactionByHash(hash string) (*models.Transaction, error) {
+func (n *EthNode) GetTransactionByHash(task TxTask) (*models.Transaction, error) {
 	var wg sync.WaitGroup
 
-	txHash := common.HexToHash(hash)
+	txHash := common.HexToHash(task.TxHash)
 
 	var ethTX *types.Transaction
 	var receipt *types.Receipt
@@ -47,8 +46,8 @@ func (n *EthNode) GetTransactionByHash(hash string) (*models.Transaction, error)
 	// fetch both requests at the same time
 	wg.Add(2)
 
-	n.fetchTransactionDetails(&wg, &ethTX, txHash, errCh)
-	n.fetchTransactionReceipt(&wg, &receipt, txHash, errCh)
+	n.fetchTransactionDetails(task.Ctx, &wg, &ethTX, txHash, errCh)
+	n.fetchTransactionReceipt(task.Ctx, &wg, &receipt, txHash, errCh)
 
 	// close the error channel when both goroutines are done
 	go func() {
@@ -65,7 +64,7 @@ func (n *EthNode) GetTransactionByHash(hash string) (*models.Transaction, error)
 	}
 
 	// upon context cancellation, quit here the execution with abort message
-	if n.ctx.Err() != nil && errors.Is(n.ctx.Err(), context.Canceled) {
+	if task.Ctx.Err() != nil && errors.Is(task.Ctx.Err(), context.Canceled) {
 		return nil, errors.New("fetching ethereum tx data got interrupted by context cancellation")
 	}
 
@@ -111,19 +110,19 @@ func (n *EthNode) GetTransactionByHash(hash string) (*models.Transaction, error)
 	return tx, nil
 }
 
-func (n *EthNode) fetchTransactionReceipt(wg *sync.WaitGroup, receipt **types.Receipt, txHash common.Hash,
-	errCh chan error) {
+func (n *EthNode) fetchTransactionReceipt(ctx context.Context, wg *sync.WaitGroup, receipt **types.Receipt,
+	txHash common.Hash, errCh chan error) {
 	go func() {
 		defer wg.Done()
 		// fetch the transaction receipt
 		for {
 			if n.rateLimiter.Allow() {
 				var err error
-				*receipt, err = n.client.TransactionReceipt(n.ctx, txHash)
+				*receipt, err = n.client.TransactionReceipt(ctx, txHash)
 				if err != nil {
 					select {
 					case errCh <- fmt.Errorf("failed to fetch transaction receipt: %v", err):
-					case <-n.ctx.Done():
+					case <-ctx.Done():
 					}
 				}
 				return
@@ -133,19 +132,19 @@ func (n *EthNode) fetchTransactionReceipt(wg *sync.WaitGroup, receipt **types.Re
 	}()
 }
 
-func (n *EthNode) fetchTransactionDetails(wg *sync.WaitGroup, ethTX **types.Transaction, txHash common.Hash,
-	errCh chan error) {
+func (n *EthNode) fetchTransactionDetails(ctx context.Context, wg *sync.WaitGroup, ethTX **types.Transaction,
+	txHash common.Hash, errCh chan error) {
 	go func() {
 		defer wg.Done()
 		// fetch a transaction by its hash, but obey the rate limitations of the node
 		for {
 			if n.rateLimiter.Allow() {
 				var err error
-				*ethTX, _, err = n.client.TransactionByHash(n.ctx, txHash)
+				*ethTX, _, err = n.client.TransactionByHash(ctx, txHash)
 				if err != nil {
 					select {
 					case errCh <- fmt.Errorf("failed to fetch transaction details: %v", err):
-					case <-n.ctx.Done():
+					case <-ctx.Done():
 					}
 				}
 				return
@@ -153,6 +152,25 @@ func (n *EthNode) fetchTransactionDetails(wg *sync.WaitGroup, ethTX **types.Tran
 			time.Sleep(n.rateLimiter.WaitDuration())
 		}
 	}()
+}
+
+func (n *EthNode) ScheduleTask(muxCtx context.Context, txHash string) (<-chan TxResult, error) {
+	resChan := make(chan TxResult)
+
+	task := TxTask{
+		TxHash:  txHash,
+		Ctx:     muxCtx,
+		ResChan: resChan,
+	}
+
+	select {
+	case n.tasksChan <- task:
+	case <-muxCtx.Done():
+		close(resChan)
+		return resChan, fmt.Errorf("request canceled, error fetching info for hash '%s'", txHash)
+	}
+
+	return resChan, nil
 }
 
 // getTransactionSender function to get the sender address

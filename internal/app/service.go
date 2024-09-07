@@ -55,52 +55,86 @@ func (ap *Service) GetMyTransactions(userID int) ([]*models.Transaction, error) 
 }
 
 // GetTransactionsByHashes fetches all stored txs in the database by txHashes
-func (ap *Service) GetTransactionsByHashes(txHashes []string, userID int) ([]*models.Transaction, error) {
+func (ap *Service) GetTransactionsByHashes(requestCtx context.Context, txHashes []string, userID int) (
+	[]*models.Transaction, error) {
 	fullList := make([]*models.Transaction, 0, len(txHashes))
 
-	// first grab all stored txs (from the list)
+	// fetch stored transactions
 	txList, err := ap.st.GetTransactionsByHashes(txHashes, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	// create a lookup of the returned list of stored txs
-	availableMap := make(map[string]int, len(txList))
-	for i, v := range txList {
-		availableMap[v.TXHash] = i
+	// map stored transactions for lookup
+	availableMap := make(map[string]*models.Transaction, len(txList))
+	for _, tx := range txList {
+		availableMap[tx.TXHash] = tx
+
+		// ensure user_transactions table is up-to-date
+		if err := ap.st.InsertTransactionsUser([]*models.Transaction{tx}, userID); err != nil {
+			return nil, fmt.Errorf("error storing info for hash '%s': %v", tx.TXHash, err)
+		}
 	}
 
-	// range through all hashes and...
+	muxCtx, cancel := MergeContexts(ap.ctx, requestCtx)
+	defer cancel()
+
+	// schedule tasks for missing transactions
+	var resultChans []<-chan network.TxResult
 	for _, hash := range txHashes {
-		// either take from the already collected query result
-		if i, found := availableMap[hash]; found {
-			fullList = append(fullList, txList[i])
-
-			// and make sure the join table (user_transactions) has txDB added
-			//
-			// NOTE: ideally we should only emmit "transactionRead" event
-			// and another goroutine to listen and insert the txDB/txs, to separate read and write operations
-			err := ap.st.InsertTransactionsUser([]*models.Transaction{txList[i]}, userID)
+		if _, found := availableMap[hash]; !found {
+			resultChan, err := ap.net.ScheduleTask(muxCtx, hash)
 			if err != nil {
-				return nil, fmt.Errorf("error storing txDB txDB info for hash '%s': %v", hash, err)
+				return nil, fmt.Errorf("error scheduling task for hash '%s': %v", hash, err)
 			}
-			continue
+			resultChans = append(resultChans, resultChan)
 		}
+	}
 
-		// or otherwise fetch it from the ethereum network
-		tx, err := ap.net.GetTransactionByHash(hash)
-		if err != nil {
-			return nil, fmt.Errorf("error fetching txDB info for hash '%s': %v", hash, err)
+	// process scheduled tasks
+	for i := 0; i < len(resultChans); i++ {
+		select {
+		case result := <-resultChans[i]:
+			if result.Err != nil {
+				return nil, fmt.Errorf("error fetching task for hash '%s': %v", result.Tx.TXHash, result.Err)
+			}
+			availableMap[result.Tx.TXHash] = result.Tx
+			txList = append(txList, result.Tx)
+
+			// insert newly fetched transactions
+			if err := ap.st.InsertTransactions([]*models.Transaction{result.Tx}, userID); err != nil {
+				return nil, fmt.Errorf("error storing info for hash '%s': %v", result.Tx.TXHash, err)
+			}
+		case <-muxCtx.Done():
+			return nil, muxCtx.Err()
 		}
+	}
 
-		// and then preserve the collected transactions in the store for future access
-		err = ap.st.InsertTransactions([]*models.Transaction{tx}, userID)
-		if err != nil {
-			return nil, fmt.Errorf("error storing txDB info for hash '%s': %v", hash, err)
+	// rebuild the result list in the original order of txHashes
+	for _, hash := range txHashes {
+		if tx, found := availableMap[hash]; found {
+			fullList = append(fullList, tx)
 		}
-
-		fullList = append(fullList, tx)
 	}
 
 	return fullList, nil
+}
+
+// MergeContexts provides single context by merging the app context (Ctrl+C handler) and
+// http request Context (connection close);
+// This goroutine will exit once the request completes (or being canceled);
+// Don't use this function if you don't have a way to cancel at least one of them
+func MergeContexts(appCtx, requestCtx context.Context) (context.Context, context.CancelFunc) {
+	muxCtx, cancel := context.WithCancel(context.Background())
+
+	go func() {
+		select {
+		case <-appCtx.Done():
+			cancel()
+		case <-requestCtx.Done():
+			cancel()
+		}
+	}()
+
+	return muxCtx, cancel
 }

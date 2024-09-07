@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"os"
 
 	"ethereum-fetcher/cmd"
 	"ethereum-fetcher/internal/di"
@@ -28,6 +29,7 @@ func main() {
 		log.WithFields(log.Fields{
 			"status": "starting",
 			"port":   vp.GetString(cmd.APIPort),
+			"pid":    os.Getpid(),
 		}).Info("lime ethereum fetcher server")
 
 		cmd.InitShutdownHandler(cancel)

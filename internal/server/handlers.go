@@ -245,7 +245,7 @@ func (ep *EndPoint) getTransactionsByHashes(w http.ResponseWriter, r *http.Reque
 	// extract the user ID - zero value for "no user"
 	userID, _ := r.Context().Value(userIDKey).(int)
 
-	txList, err := ep.ap.GetTransactionsByHashes(txHashes, userID)
+	txList, err := ep.ap.GetTransactionsByHashes(r.Context(), txHashes, userID)
 	if err != nil {
 		log.Errorf("cannot retrieve transactions by hashes: %v", err)
 		writeInternalServerError(w)

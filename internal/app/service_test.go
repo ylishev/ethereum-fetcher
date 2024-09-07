@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"ethereum-fetcher/cmd"
+	"ethereum-fetcher/internal/network"
 	netmocks "ethereum-fetcher/internal/network/mocks"
 	storagemocks "ethereum-fetcher/internal/store/mocks"
 	"ethereum-fetcher/internal/store/pg/models"
@@ -234,20 +235,34 @@ func (s *ServiceTestSuite) TestGetTransactionsByHashes() {
 				Return(tt.mockData.errDB).Maybe()
 
 			if tt.mockData.netDB != nil {
-				net.On("GetTransactionByHash", mock.AnythingOfType("string")).Once().Return(tt.mockData.netDB[0], tt.mockData.errDB)
-				net.On("GetTransactionByHash", mock.AnythingOfType("string")).Once().Return(tt.mockData.netDB[1], tt.mockData.errDB)
+				resChan1 := make(chan network.TxResult, 1)
+				resChan1 <- network.TxResult{Tx: tt.mockData.netDB[0], Err: tt.mockData.errDB}
+				close(resChan1)
+				resChan2 := make(chan network.TxResult, 1)
+				resChan2 <- network.TxResult{Tx: tt.mockData.netDB[1], Err: tt.mockData.errDB}
+				close(resChan2)
+
+				net.On("ScheduleTask", mock.AnythingOfType("*context.cancelCtx"), mock.AnythingOfType("string")).Once().Return(chanToChan(resChan1), tt.mockData.errDB)
+				net.On("ScheduleTask", mock.AnythingOfType("*context.cancelCtx"), mock.AnythingOfType("string")).Once().Return(chanToChan(resChan2), tt.mockData.errDB)
 
 				if !tt.wantErr {
 					st.On("InsertTransactions", mock.Anything, mock.Anything).
 						Return(tt.mockData.errDB)
 				}
 			} else if tt.mockData.errNet != nil {
-				net.On("GetTransactionByHash", mock.AnythingOfType("string")).Once().Return(nil, tt.mockData.errNet)
+				resChan1 := make(chan network.TxResult, 1)
+				resChan1 <- network.TxResult{Tx: &models.Transaction{TXHash: tt.args.txHashes[0]}, Err: tt.mockData.errNet}
+				close(resChan1)
+				resChan2 := make(chan network.TxResult, 1)
+				resChan2 <- network.TxResult{Tx: &models.Transaction{TXHash: tt.args.txHashes[1]}, Err: tt.mockData.errNet}
+				close(resChan2)
+				net.On("ScheduleTask", mock.AnythingOfType("*context.cancelCtx"), mock.AnythingOfType("string")).Once().Return(chanToChan(resChan1), tt.mockData.errDB)
+				net.On("ScheduleTask", mock.AnythingOfType("*context.cancelCtx"), mock.AnythingOfType("string")).Once().Return(chanToChan(resChan2), tt.mockData.errDB)
 			}
 
 			appService := NewService(s.ctx, s.vp, st, net)
 
-			freshTxs, err := appService.GetTransactionsByHashes(tt.args.txHashes, tt.args.userID)
+			freshTxs, err := appService.GetTransactionsByHashes(s.ctx, tt.args.txHashes, tt.args.userID)
 			if !tt.wantErr {
 				assert.Nil(t, err)
 
@@ -260,6 +275,10 @@ func (s *ServiceTestSuite) TestGetTransactionsByHashes() {
 			}
 		})
 	}
+}
+
+func chanToChan(ch chan network.TxResult) <-chan network.TxResult {
+	return ch
 }
 
 func (s *ServiceTestSuite) TestGetAllTransactions() {
