@@ -9,7 +9,7 @@ The server supports the following env variables:
 - `API_PORT` - the port where the API is listening for requests
 - `ETH_NODE_URL` - url to an ethereum node that is used for polling
 - `DB_CONNECTION_URL` - url for connecting with your database. NOTE: you **might** need to use host.docker.internal
-or your host IP as postgresql connection (instead of localhost)
+  or your host IP as postgresql connection (instead of localhost)
 - `JWT_SECRET` - the JWT secret used for the authentication part
 
 Optionally you can provide or tweak the following variables:
@@ -25,12 +25,12 @@ those variables available in your environment, when running the server or the te
 ## Build and run instructions
 
 For easy build, the server is made available via [Dockerfile](Dockerfile) and thus has the
-pre-requirement of docker locally installed. 
+pre-requirement of docker locally installed.
 
 ```bash
-git clone http://limechain-sjyoln@git.codesubmit.io/limechain/senior-the-ethereum-fetcher-bymuur 
+git clone https://github.com/ylishev/ethereum-fetcher.git 
 # password is required to clone through this URL
-cd senior-the-ethereum-fetcher-bymuur
+cd ethereum-fetcher
 
 # To build the tool, while you are still in the tool's source directory, you have to run the
 # command bellow. Make sure your env is set.
@@ -43,10 +43,15 @@ docker run limeapi
 
 # if you want to expose the port outside the container run it with the appropriate port like this:
 
-docker run -p 8080:8080 limeapi
+docker run -p ${API_PORT}:${API_PORT} --env-file .env limeapi
 
-# In case you want to use the .env file, you can opt to run it with instead:
-# docker run --env-file .env -p 8080:8080 limeapi
+# In case you don't want to use the .env file, you can opt to run it like this, assuming the variables are exported:
+# docker run -p ${API_PORT}:${API_PORT} \
+#  -e API_PORT=${API_PORT} \
+#  -e ETH_NODE_URL=${ETH_NODE_URL} \
+#  -e DB_CONNECTION_URL=${DB_CONNECTION_URL} \
+#  -e JWT_SECRET=${JWT_SECRET} \
+#  limeapi
 ```
 
 WARNING: In event that you don't have postgresql already up and running you can use the provided
@@ -196,6 +201,13 @@ Since the requirement were very specific some of the design choices were predete
   Aside from that the service might implement rate limiter - the same way Infura might enforce 10 req/s.
 
   Still, using 429 status code is also an option (i.e. fail-fast instead of throttling back and wait for the node).
+
+
+- Concurrency
+
+  Network layer uses a pool of workers that fetches Ethereum transactions in parallel. For example, you can
+  provide 5 hashes as argument to the /lime/eth endpoint and the network will fetch all of them in parallel.
+  However, that will happen accordingly to the configured count of works and obey the rate-limiter described above.
 
 
 - JWT

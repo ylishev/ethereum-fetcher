@@ -17,6 +17,10 @@ COPY --from=builder /build/internal/store/pg/migrations /internal/store/pg/migra
 
 COPY --from=builder /lime-server /lime-server
 
-EXPOSE $APP_PORT
+# set default port if not specified during build
+ARG API_PORT=8080
+ENV API_PORT=${API_PORT}
+
+EXPOSE ${API_PORT}
 
 CMD ["./lime-server"]
