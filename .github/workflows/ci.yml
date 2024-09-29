@@ -25,9 +25,12 @@ jobs:
         run: |
           docker build --no-cache -t limeapi --build-arg API_PORT=${{ env.API_PORT }} .
 
+      - name: Create Docker network
+        run: docker network create my_network
+
       - name: Run PostgreSQL container
         run: |
-          docker run --name postgres_db -d \
+          docker run --name postgres_db --network my_network -d \
           -e POSTGRES_USER=${{ env.POSTGRES_USER }} \
           -e POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }} \
           -e POSTGRES_DB=postgres \
@@ -60,7 +63,7 @@ jobs:
       - name: Run unit tests
         run: |
           set -e
-          docker run --rm -e DB_CONNECTION_URL=${{ env.DB_CONNECTION_URL }} -v ${{ github.workspace }}:/app -w /app golang:1.23.0 go test ./... -count=1 -v
+          docker run --rm --network my_network -e DB_CONNECTION_URL=${{ env.DB_CONNECTION_URL }} -v ${{ github.workspace }}:/app -w /app golang:1.23.0 go test ./... -count=1 -v
 
       - name: Get Committer Email
         id: get_email
