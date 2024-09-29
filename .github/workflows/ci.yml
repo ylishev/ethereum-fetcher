@@ -1,0 +1,46 @@
+name: CI LimeAPI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up environment variables
+        run: |
+          echo "API_PORT=${{ vars.API_PORT }}" >> $GITHUB_ENV
+          echo "ETH_NODE_URL=${{ secrets.ETH_NODE_URL }}" >> $GITHUB_ENV
+          echo "DB_CONNECTION_URL=${{ secrets.DB_CONNECTION_URL }}" >> $GITHUB_ENV
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: |
+          docker build --no-cache -t limeapi --build-arg API_PORT=${{ env.API_PORT }} .
+
+      - name: Run linter
+        run: |
+          docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/app -w /app golangci/golangci-lint:v1.60.3 golangci-lint run ./...
+
+      - name: Run unit tests
+        run: |
+          docker run --rm --network host -e DB_CONNECTION_URL=${{ env.DB_CONNECTION_URL }} limeapi go test ./... -count=1
+
+      - name: Get Committer Email
+        id: get_email
+        run: |
+          COMMIT_EMAIL=$(git log -1 --pretty=format:'%ae')
+          echo "COMMIT_EMAIL=$COMMIT_EMAIL" >> $GITHUB_ENV
+
+      - name: Notify Developer
+        run: |
+          echo "Build and tests completed successfully!" | mail -s "GitHub Actions CI Notification" "${{ env.COMMIT_EMAIL }}"
+
+      - name: Clean up Docker images
+        run: |
+          docker system prune -f --volumes
