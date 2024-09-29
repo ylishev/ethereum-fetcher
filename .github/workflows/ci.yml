@@ -16,6 +16,8 @@ jobs:
         run: |
           echo "API_PORT=${{ vars.API_PORT }}" >> $GITHUB_ENV
           echo "ETH_NODE_URL=${{ secrets.ETH_NODE_URL }}" >> $GITHUB_ENV
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> $GITHUB_ENV
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> $GITHUB_ENV
           echo "DB_CONNECTION_URL=${{ secrets.DB_CONNECTION_URL }}" >> $GITHUB_ENV
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
 
@@ -23,13 +25,42 @@ jobs:
         run: |
           docker build --no-cache -t limeapi --build-arg API_PORT=${{ env.API_PORT }} .
 
+      - name: Run PostgreSQL container
+        run: |
+          docker run --name postgres_db -d \
+          -e POSTGRES_USER=${{ env.POSTGRES_USER }} \
+          -e POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }} \
+          -e POSTGRES_DB=postgres \
+          -p 5432:5432 \
+          -v postgres_data:/var/lib/postgresql/data \
+          --restart unless-stopped \
+          postgres:16.4
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          for i in {1..30}; do
+            if docker exec postgres_db pg_isready -U ${{ env.POSTGRES_USER }}; then
+              echo "PostgreSQL is ready!"
+              break
+            fi
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 2
+          done
+          # Check if it timed out
+          if [ $i -eq 30 ]; then
+            echo "PostgreSQL did not become ready in time."
+            exit 1
+          fi
+
       - name: Run linter
         run: |
-          docker run --rm --platform linux/amd64 -v $(pwd):/app -w /app golangci/golangci-lint:v1.60.3 golangci-lint run --timeout 3m ./...
+          set -e
+          docker run --rm --platform linux/amd64 -v ${{ github.workspace }}:/app -w /app golangci/golangci-lint:v1.60.3 golangci-lint run --timeout 3m ./...
 
       - name: Run unit tests
         run: |
-          docker run --rm --network host -e DB_CONNECTION_URL=${{ env.DB_CONNECTION_URL }} limeapi go test ./... -count=1
+          set -e
+          docker run --rm -e DB_CONNECTION_URL=${{ env.DB_CONNECTION_URL }} -v ${{ github.workspace }}:/app -w /app golang:1.23.0 go test ./... -count=1 -v
 
       - name: Get Committer Email
         id: get_email
@@ -43,4 +74,8 @@ jobs:
 
       - name: Clean up Docker images
         run: |
+          if [ "$(docker ps -aq -f name=postgres_db)" ]; then
+            docker stop postgres_db
+            docker rm postgres_db
+          fi
           docker system prune -f --volumes
