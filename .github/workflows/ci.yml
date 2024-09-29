@@ -25,7 +25,7 @@ jobs:
 
       - name: Run linter
         run: |
-          docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/app -w /app golangci/golangci-lint:v1.60.3 golangci-lint run ./...
+          docker run --rm --platform linux/amd64 -v $(pwd):/app -w /app golangci/golangci-lint:v1.60.3 golangci-lint run ./...
 
       - name: Run unit tests
         run: |
