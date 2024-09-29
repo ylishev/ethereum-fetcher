@@ -65,15 +65,13 @@ jobs:
           set -e
           docker run --rm --network my_network -e DB_CONNECTION_URL=${{ env.DB_CONNECTION_URL }} -v ${{ github.workspace }}:/app -w /app golang:1.23.0 go test ./... -count=1 -v
 
-      - name: Get Committer Email
-        id: get_email
-        run: |
-          COMMIT_EMAIL=$(git log -1 --pretty=format:'%ae')
-          echo "COMMIT_EMAIL=$COMMIT_EMAIL" >> $GITHUB_ENV
-
       - name: Notify Developer
+        if: success()
         run: |
-          echo "Build and tests completed successfully!" | mail -s "GitHub Actions CI Notification" "${{ env.COMMIT_EMAIL }}"
+          MESSAGE="Build and tests completed successfully on commit ${{ github.sha }}!"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+          -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+          -d "text=$MESSAGE"
 
       - name: Clean up Docker images
         run: |
