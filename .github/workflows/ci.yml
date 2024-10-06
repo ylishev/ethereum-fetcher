@@ -6,21 +6,20 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  API_PORT: ${{ vars.API_PORT }}
+  ETH_NODE_URL: ${{ secrets.ETH_NODE_URL }}
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  DB_CONNECTION_URL: ${{ secrets.DB_CONNECTION_URL }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up environment variables
-        run: |
-          echo "API_PORT=${{ vars.API_PORT }}" >> $GITHUB_ENV
-          echo "ETH_NODE_URL=${{ secrets.ETH_NODE_URL }}" >> $GITHUB_ENV
-          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> $GITHUB_ENV
-          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> $GITHUB_ENV
-          echo "DB_CONNECTION_URL=${{ secrets.DB_CONNECTION_URL }}" >> $GITHUB_ENV
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
 
       - name: Build Docker image
         run: |
