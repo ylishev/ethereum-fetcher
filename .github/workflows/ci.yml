@@ -14,6 +14,7 @@ env:
   DB_CONNECTION_URL: ${{ secrets.DB_CONNECTION_URL }}
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
   IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/limeapi
+  UNIQUE_TAG: ${{ github.sha }}
 
 jobs:
   build:
@@ -22,9 +23,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Build Docker image
         run: |
-          docker build --no-cache -t $IMAGE_NAME --build-arg API_PORT=${{ env.API_PORT }} .
+          docker build --no-cache -t $IMAGE_NAME:$UNIQUE_TAG --build-arg API_PORT=${{ env.API_PORT }} .
+
+      - name: Push Docker image with unique tag to GHCR
+        run: |
+          docker push $IMAGE_NAME:$UNIQUE_TAG
 
       - name: Upload code artifact
         uses: actions/upload-artifact@v4
@@ -145,24 +153,25 @@ jobs:
       - name: Log in to GHCR
         run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Tag Docker image for GHCR
+      - name: Tag Docker image with commit SHA and latest
         run: |
-          IMAGE_TAG=ghcr.io/${{ github.repository_owner }}/limeapi:${{ github.sha }}
-          docker tag $IMAGE_NAME $IMAGE_TAG
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          IMAGE_SHA_TAG=$IMAGE_NAME:${{ github.sha }}
+          IMAGE_LATEST_TAG=$IMAGE_NAME:latest
+          docker tag $IMAGE_NAME:$UNIQUE_TAG $IMAGE_SHA_TAG
+          docker tag $IMAGE_NAME:$UNIQUE_TAG $IMAGE_LATEST_TAG
+          echo "IMAGE_SHA_TAG=$IMAGE_SHA_TAG" >> $GITHUB_ENV
+          echo "IMAGE_LATEST_TAG=$IMAGE_LATEST_TAG" >> $GITHUB_ENV
 
-      - name: Push Docker image to GHCR
-        run: docker push ${{ env.IMAGE_TAG }}
+      - name: Push Docker image with SHA and latest tags
+        run: |
+          docker push $IMAGE_SHA_TAG
+          docker push $IMAGE_LATEST_TAG
 
       - name: Notify Developer
         if: success()
         run: |
-          IMAGE_URL="ghcr.io/${{ github.repository_owner }}/limeapi:${{ github.sha }}"
           MESSAGE="✅Docker image pushed successfully to GitHub Container Registry (GHCR)!%0A"
-          MESSAGE+="Repository: ${{ github.repository }}%0A"
-          MESSAGE+="Image: $IMAGE_URL%0A"
-          MESSAGE+="Commit: ${{ github.sha }}%0A"
-          MESSAGE+="Branch: ${{ github.ref }}%0A"
+          MESSAGE+="Image tags:%0A- SHA: ${{ github.sha }}%0A- Latest"
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
           -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
           -d "text=$MESSAGE"
