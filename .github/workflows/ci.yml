@@ -34,6 +34,9 @@ jobs:
         run: |
           docker push $IMAGE_NAME:$UNIQUE_TAG
 
+      - name: [ 0 ] List Docker images
+        run: docker images
+      
       - name: Upload code artifact
         uses: actions/upload-artifact@v4
         with:
@@ -148,10 +151,20 @@ jobs:
 
   push:
     runs-on: ubuntu-latest
-    needs: [build, test]
+    needs: [ build, test ]
     steps:
       - name: Log in to GHCR
         run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: [1] List Docker images
+        run: docker images
+
+      - name: Pull the Docker image
+        run: |
+          docker pull $IMAGE_NAME:$UNIQUE_TAG || echo "Image not found, might not have been built yet."
+
+      - name: [ 2 ] List Docker images
+        run: docker images
 
       - name: Tag Docker image with commit SHA and latest
         run: |
@@ -164,6 +177,7 @@ jobs:
 
       - name: Push Docker image with SHA and latest tags
         run: |
+          docker push $IMAGE_NAME:$UNIQUE_TAG
           docker push $IMAGE_SHA_TAG
           docker push $IMAGE_LATEST_TAG
 
