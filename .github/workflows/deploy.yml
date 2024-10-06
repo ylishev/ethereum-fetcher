@@ -1,0 +1,34 @@
+name: Deploy LimeAPI
+
+on:
+  workflow_run:
+    workflows: [ "CI LimeAPI Pipeline" ]
+    types:
+      - completed
+
+jobs:
+  approve-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Await Manual Approval
+        uses: hmarr/auto-approve-action@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: approve-deploy
+    steps:
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.30.1'
+
+      - name: Use kubeconfig from Secrets
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl set image deployment/limeapi limeapi=ghcr.io/ylishev/limeapi:latest
+          kubectl rollout status deployment/limeapi
