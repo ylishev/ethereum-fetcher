@@ -1,10 +1,12 @@
 FROM golang:1.23.0 AS builder
 
-ADD . /build/
-
 WORKDIR /build
 
+COPY go.mod go.sum ./
+
 RUN go mod download && go mod verify
+
+ADD . ./
 
 RUN go build -v -o ../lime-server .
 
