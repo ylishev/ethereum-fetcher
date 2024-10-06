@@ -13,6 +13,7 @@ env:
   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   DB_CONNECTION_URL: ${{ secrets.DB_CONNECTION_URL }}
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/limeapi
 
 jobs:
   build:
@@ -23,7 +24,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build --no-cache -t limeapi --build-arg API_PORT=${{ env.API_PORT }} .
+          docker build --no-cache -t $IMAGE_NAME --build-arg API_PORT=${{ env.API_PORT }} .
 
       - name: Upload code artifact
         uses: actions/upload-artifact@v4
@@ -147,7 +148,7 @@ jobs:
       - name: Tag Docker image for GHCR
         run: |
           IMAGE_TAG=ghcr.io/${{ github.repository_owner }}/limeapi:${{ github.sha }}
-          docker tag limeapi $IMAGE_TAG
+          docker tag $IMAGE_NAME $IMAGE_TAG
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: Push Docker image to GHCR
