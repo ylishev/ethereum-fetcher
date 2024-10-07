@@ -149,6 +149,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ build, test ]
     steps:
+      - name: Download code artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: code-artifact
+
       - name: Log in to GHCR
         run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
 
@@ -166,7 +171,7 @@ jobs:
         run: |
           echo "IMAGE_NAME: $IMAGE_NAME"
           echo "IMAGE_SHA_TAG: $IMAGE_SHA_TAG"
-          echo "IMAGE_LATEST_TAG: IMAGE_LATEST_TAG"
+          echo "IMAGE_LATEST_TAG: $IMAGE_LATEST_TAG"
 
       - name: Push Multi-Arch Docker image with SHA and latest tags
         run: |
