@@ -25,16 +25,13 @@ jobs:
       - name: Log in to GHCR
         run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
 
+      - name: Create Buildx Builder
+        run: docker buildx create --use
+
       - name: Build Multi-Arch Docker Image
         run: |
-          docker buildx create --use
           docker buildx build --platform linux/amd64,linux/arm64 \
-            --no-cache -t $IMAGE_NAME:$UNIQUE_TAG --build-arg API_PORT=${{ env.API_PORT }} .
-
-      - name: Push Docker image with unique tag to GHCR
-        run: |
-          docker buildx create --use
-          docker buildx push $IMAGE_NAME:$UNIQUE_TAG
+            --no-cache -t $IMAGE_NAME:$UNIQUE_TAG --build-arg API_PORT=${{ env.API_PORT }} --push .
 
       - name: Upload code artifact
         uses: actions/upload-artifact@v4
@@ -44,8 +41,8 @@ jobs:
 
       - name: Clean up unused Docker images and containers
         run: |
-          # keep the last 10 images
-          IMAGES_TO_REMOVE=$(docker images --format '{{.ID}}' | tail -n +11)
+          # keep the last 30 images
+          IMAGES_TO_REMOVE=$(docker images --format '{{.ID}}' | tail -n +31)
 
           # stop and remove containers older than 24 hours that are using those images
           if [ -n "$IMAGES_TO_REMOVE" ]; then
@@ -62,7 +59,7 @@ jobs:
             done
           fi
 
-          # remove the images that are not among the last 10
+          # remove the images that are not among the last 30
           if [ -n "$IMAGES_TO_REMOVE" ]; then
             docker rmi $IMAGES_TO_REMOVE || true
           fi
@@ -155,24 +152,11 @@ jobs:
       - name: Log in to GHCR
         run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
 
-      - name: Pull the Docker image
-        run: |
-          docker buildx create --use
-          docker buildx pull --platform linux/arm64 $IMAGE_NAME:$UNIQUE_TAG || echo "Image not found for ARM64."
-
-      - name: Tag Multi-Arch Docker image with commit SHA and latest
-        run: |
-          docker buildx create --use
-          IMAGE_SHA_TAG=$IMAGE_NAME:${{ github.sha }}
-          IMAGE_LATEST_TAG=$IMAGE_NAME:latest
-          docker buildx imagetools create --tag $IMAGE_SHA_TAG $IMAGE_NAME:$UNIQUE_TAG
-          docker buildx imagetools create --tag $IMAGE_LATEST_TAG $IMAGE_NAME:$UNIQUE_TAG
-          echo "IMAGE_SHA_TAG=$IMAGE_SHA_TAG" >> $GITHUB_ENV
-          echo "IMAGE_LATEST_TAG=$IMAGE_LATEST_TAG" >> $GITHUB_ENV
+      - name: Create Buildx Builder
+        run: docker buildx create --use
 
       - name: Push Multi-Arch Docker image with SHA and latest tags
         run: |
-          docker buildx create --use
           docker buildx build --platform linux/amd64,linux/arm64 \
             -t $IMAGE_NAME:$UNIQUE_TAG \
             -t $IMAGE_NAME:$IMAGE_SHA_TAG \
