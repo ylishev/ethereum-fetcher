@@ -19,8 +19,8 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl set image deployment/limeapi limeapi=ghcr.io/${{ github.repository_owner }}/limeapi:latest
-          kubectl rollout status deployment/limeapi
+          kubectl set image deployment/limeapi-deployment limeapi=ghcr.io/${{ github.repository_owner }}/limeapi:latest
+          kubectl rollout status deployment/limeapi-deployment
 
       - name: Notify Developer
         if: success()
