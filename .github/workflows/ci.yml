@@ -116,7 +116,7 @@ jobs:
       - name: Run unit tests
         run: |
           set -e
-          docker run --rm --network my_network -e DB_CONNECTION_URL=${{ env.DB_CONNECTION_URL }} -v ${{ github.workspace }}:/app -w /app golang:1.23.0 go test ./... -count=1 -v
+          docker run --rm --network my_network -e DB_CONNECTION_URL=${{ env.DB_CONNECTION_URL }} -v ${{ github.workspace }}:/app -w /app golang:1.23.2 go test ./... -count=1 -v
 
       - name: Notify Developer
         if: success()
